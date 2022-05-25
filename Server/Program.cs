@@ -1,5 +1,6 @@
-using LifeHelper.Shared.Model.AppSettings;
-using Microsoft.AspNetCore.ResponseCompression;
+using LifeHelper.Server.Extension;
+using LifeHelper.Shared.Models.AppSettings;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddServices();
+
+builder.Services.AddDbContext<LifeHelperContext>(option => option.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+
 builder.Services.Configure<LineChatBotSetting>(builder.Configuration.GetSection("LineChatBot"));
 
 var app = builder.Build();

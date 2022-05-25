@@ -1,4 +1,4 @@
-﻿using LifeHelper.Shared.Model.AppSettings;
+﻿using LifeHelper.Shared.Models.AppSettings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
@@ -7,7 +7,7 @@ using System.Text;
 
 namespace LifeHelper.Server.LineVerify;
 
-public class LineVerifySignatureFilter: IAuthorizationFilter
+public class LineVerifySignatureFilter : IAuthorizationFilter
 {
     private readonly LineChatBotSetting lineChatBotSetting;
     public LineVerifySignatureFilter(IOptions<LineChatBotSetting> lineChatBotSetting)
