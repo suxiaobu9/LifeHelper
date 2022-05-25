@@ -22,11 +22,11 @@ public class AccountingRepository : Repository<Accounting>
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Accounting[]> GetMonthlyAccounting(int userId, DateTime? utcNow = null)
+    public async Task<Accounting[]> GetMonthlyAccounting(int userId, DateTime? utcDate = null)
     {
-        utcNow ??= DateTime.UtcNow;
+        utcDate ??= DateTime.UtcNow;
 
-        var twNow = utcNow.Value.AddHours(8);
+        var twNow = utcDate.Value.AddHours(8);
         var start = new DateTime(twNow.Year, twNow.Month, 1).ToUniversalTime();
         var end = new DateTime(twNow.Year, twNow.Month + 1, 1).AddMilliseconds(-1).ToUniversalTime();
 

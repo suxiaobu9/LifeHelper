@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LifeHelper.Server", "Server\LifeHelper.Server.csproj", "{5561009F-2B9E-4109-91C6-FDFA105D0B80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LifeHelper.Server", "Server\LifeHelper.Server.csproj", "{5561009F-2B9E-4109-91C6-FDFA105D0B80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LifeHelper.Client", "Client\LifeHelper.Client.csproj", "{442926E6-1F58-4982-9EF3-87E388D9DE0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LifeHelper.Client", "Client\LifeHelper.Client.csproj", "{442926E6-1F58-4982-9EF3-87E388D9DE0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LifeHelper.Shared", "Shared\LifeHelper.Shared.csproj", "{7DF6A57A-00FE-494E-9637-D3387CBE5090}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LifeHelper.Shared", "Shared\LifeHelper.Shared.csproj", "{7DF6A57A-00FE-494E-9637-D3387CBE5090}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

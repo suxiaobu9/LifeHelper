@@ -143,7 +143,7 @@ public class LineBotApiService
         var flexMessageModel = new AccountingFlexMessageModel
         {
             AccountId = accounting.Id,
-            MonthlyPay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
             MonthlyIncome = Math.Abs(monthlyAccountings.Where(x => x.Amount < 0).Sum(x => x.Amount)),
             EventName = accounting.Event,
             Pay = amount,
