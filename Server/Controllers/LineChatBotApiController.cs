@@ -1,6 +1,10 @@
 ﻿using isRock.LineBot;
 using LifeHelper.Server.LineVerify;
+using LifeHelper.Server.Models.LineApi;
+using LifeHelper.Shared.Enum;
+using LifeHelper.Shared.Models.AppSettings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace LifeHelper.Server.Controllers;
 
@@ -12,11 +16,83 @@ namespace LifeHelper.Server.Controllers;
 
 public class LineChatBotApiController : LineWebHookControllerBase
 {
+    private readonly UserService userService;
+    private readonly LineBotApiService lineBotApiService;
+
+    public LineChatBotApiController(UserService userService,
+        LineBotApiService lineBotApiService,
+        IOptions<LineChatBotSetting> lineChatBotSetting)
+    {
+        this.userService = userService;
+        this.lineBotApiService = lineBotApiService;
+        this.ChannelAccessToken = lineChatBotSetting.Value.ChannelAccessToken;
+    }
+
+    /// <summary>
+    /// 用來接 Line Webhook
+    /// </summary>
+    /// <returns></returns>
     [HttpPost]
     [Route("")]
     [LineVerifySignature]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        if (this.ReceivedMessage == null || this.ReceivedMessage.events == null || !this.ReceivedMessage.events.Any())
+            return Ok();
+
+        var lineEvents = this.ReceivedMessage.events
+            .Where(x => x != null &&
+            (x.type.ToLower() == "postback" ||
+                (x.type.ToLower() == "message" && x.message.type == "text")
+            ));
+
+        var allEventUserIds = lineEvents.Select(x => x.source.userId)
+                                            .Distinct().ToArray();
+
+        var allUsers = await userService.GetUsers(allEventUserIds);
+
+        foreach (var item in lineEvents)
+        {
+            var user = allUsers.FirstOrDefault();
+            if (user == null)
+                user = await userService.AddUser(item.source.userId);
+
+            if (item.type.ToLower() == "postback")
+            {
+                var postBackResult = await lineBotApiService.Postback(item);
+
+                ReplyToUser(item, postBackResult);
+
+                continue;
+            }
+
+            var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(item, user);
+
+            ReplyToUser(item, analyzeMessagesResult);
+        }
+
         return Ok();
+    }
+
+    private delegate string LineReply(string replyToken, string message);
+
+    /// <summary>
+    /// 回應 User
+    /// </summary>
+    /// <param name="lineEvent"></param>
+    /// <param name="model"></param>
+    private void ReplyToUser(Event lineEvent, LineReplyModel model)
+    {
+        LineReply? lineReply = model.LineReplyType switch
+        {
+            LineReplyEnum.Message => ReplyMessage,
+            LineReplyEnum.Json => ReplyMessageWithJSON,
+            _ => null,
+        };
+
+        if (lineReply == null)
+            return;
+
+        lineReply(lineEvent.replyToken, model.Message);
     }
 }

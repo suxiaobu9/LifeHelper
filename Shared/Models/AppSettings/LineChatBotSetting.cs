@@ -1,4 +1,4 @@
-﻿namespace LifeHelper.Shared.Model.AppSettings;
+﻿namespace LifeHelper.Shared.Models.AppSettings;
 
 public class LineChatBotSetting
 {
