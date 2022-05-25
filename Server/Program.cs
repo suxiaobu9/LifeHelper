@@ -1,4 +1,5 @@
 using LifeHelper.Server.Extension;
+using LifeHelper.Server.Middleware;
 using LifeHelper.Shared.Models.AppSettings;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-builder.Services.AddServices();
-
 builder.Services.AddDbContext<LifeHelperContext>(option => option.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 
 builder.Services.Configure<LineChatBotSetting>(builder.Configuration.GetSection("LineChatBot"));
+builder.Services.Configure<LIFFSetting>(builder.Configuration.GetSection("LIFF"));
+
+builder.Services.AddServices();
 
 var app = builder.Build();
 
@@ -36,6 +38,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseLIFFMiddleware();
 
 app.MapRazorPages();
 app.MapControllers();

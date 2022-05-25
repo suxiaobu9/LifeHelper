@@ -10,7 +10,7 @@ public class AccountingFlexMessageModel
     /// <summary>
     /// 本月花費
     /// </summary>
-    public int MonthlyPay { get; set; }
+    public int MonthlyOutlay { get; set; }
 
     /// <summary>
     /// 本月收入

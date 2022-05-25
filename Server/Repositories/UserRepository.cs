@@ -16,4 +16,9 @@ public class UserRepository : Repository<User>
         return await Where(x => userLineIds.Contains(x.LineUserId)).ToArrayAsync();
     }
 
+    public async Task<User?> GetUser(string userLingId)
+    {
+        return await FirstOrDefaultAsync(x => x.LineUserId == userLingId);
+    }
+
 }

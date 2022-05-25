@@ -53,7 +53,7 @@ public class FlexTemplate
           },
           {
             ""type"": ""text"",
-            ""text"": """ + model.MonthlyPay + @""",
+            ""text"": """ + model.MonthlyOutlay + @""",
             ""size"": ""xs"",
             ""color"": ""#aaaaaa"",
             ""align"": ""end""

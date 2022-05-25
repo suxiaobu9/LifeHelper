@@ -1,9 +1,42 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@using LifeHelper.Shared.Models.LIFF
+@using LifeHelper.Client.Service
 
-<h1>Hello, world!</h1>
+@inject HttpClient Http
+@inject LIFFService LIFF
 
-Welcome to your new app.
+<PageTitle>小記帳</PageTitle>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (monthlyAccounting == null)
+    return;
+
+<MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+
+
+@code {
+    private MonthlyAccountingVm? monthlyAccounting;
+    private string? IDToken;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var LiffId = await Http.GetStringAsync("LIFF/GetLIFFId");
+
+        await LIFF.InitAsync(LiffId);
+
+        if (!await LIFF.IsLoggedInAsync())
+        {
+            await LIFF.LoginAsync();
+            return;
+        }
+
+        IDToken = await LIFF.GetIDTokenAsync();
+
+        Http.DefaultRequestHeaders.Add("Authorization", $"Bearer {IDToken}");
+
+        monthlyAccounting = await Http.GetFromJsonAsync<MonthlyAccountingVm?>("AccountingBook/MonthlyAccounting");
+
+        await base.OnInitializedAsync();
+
+    }
+}

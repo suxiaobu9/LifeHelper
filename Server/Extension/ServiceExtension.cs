@@ -7,12 +7,16 @@ public static class ServiceExtension
         services.AddScoped<UserService>();
         services.AddScoped<DeleteAccountService>();
         services.AddScoped<LineBotApiService>();
+        services.AddScoped<AccountingService>();
+        services.AddScoped<UserProfileService>();
         
         services.AddScoped(typeof(Repository<>));
         services.AddScoped<UnitOfWork>();
         services.AddScoped<UserRepository>();
         services.AddScoped<DeleteAccountRepository>();
         services.AddScoped<AccountingRepository>();
+
+        services.AddHttpClient();
 
     }
 }
