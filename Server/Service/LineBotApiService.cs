@@ -117,7 +117,7 @@ public class LineBotApiService
         if (!int.TryParse(intRegex.Value, out int amount))
             return new LineReplyModel(LineReplyEnum.Message, "型別轉換錯誤");
 
-        var eventName = sourceMsg.Replace(amount.ToString(), "");
+        var eventName = sourceMsg.Replace(amount.ToString(), "").Replace("\n","");
 
         if (string.IsNullOrWhiteSpace(eventName))
             eventName = "其他";
