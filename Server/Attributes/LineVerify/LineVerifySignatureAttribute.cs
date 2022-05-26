@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace LifeHelper.Server.LineVerify
+namespace LifeHelper.Server.Attributes.LineVerify
 {
     public class LineVerifySignatureAttribute : TypeFilterAttribute
     {
