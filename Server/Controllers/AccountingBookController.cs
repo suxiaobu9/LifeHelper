@@ -1,9 +1,11 @@
-﻿using LifeHelper.Shared.Models.LIFF;
+﻿using LifeHelper.Server.Attributes.Authorize;
+using LifeHelper.Shared.Models.LIFF;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LifeHelper.Server.Controllers;
 
 [Route("[controller]")]
+[LineIdTokenAuthorize]
 public class AccountingBookController : Controller
 {
     private readonly AccountingService accountingService;

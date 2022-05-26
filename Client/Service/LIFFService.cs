@@ -32,4 +32,7 @@ public class LIFFService
 
     public ValueTask LoginAsync()
         => js.InvokeVoidAsync("liff.login");
+
+    public ValueTask LogoutAsync()
+        => js.InvokeVoidAsync("liff.logout");
 }

@@ -1,5 +1,5 @@
 ﻿using isRock.LineBot;
-using LifeHelper.Server.LineVerify;
+using LifeHelper.Server.Attributes.LineVerify;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Shared.Enum;
 using LifeHelper.Shared.Models.AppSettings;

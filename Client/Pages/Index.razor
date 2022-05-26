@@ -34,7 +34,16 @@
 
         Http.DefaultRequestHeaders.Add("Authorization", $"Bearer {IDToken}");
 
-        monthlyAccounting = await Http.GetFromJsonAsync<MonthlyAccountingVm?>("AccountingBook/MonthlyAccounting");
+        var repMsg = await Http.GetAsync("AccountingBook/MonthlyAccounting");
+
+        if (!repMsg.IsSuccessStatusCode && repMsg.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await LIFF.LogoutAsync();
+            await LIFF.LoginAsync();
+            return;
+        }
+
+        monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
 
         await base.OnInitializedAsync();
 

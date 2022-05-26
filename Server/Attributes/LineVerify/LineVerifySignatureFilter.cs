@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LifeHelper.Server.LineVerify;
+namespace LifeHelper.Server.Attributes.LineVerify;
 
 public class LineVerifySignatureFilter : IAuthorizationFilter
 {
