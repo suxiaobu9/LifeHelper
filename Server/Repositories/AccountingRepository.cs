@@ -31,7 +31,6 @@ public class AccountingRepository : Repository<Accounting>
         var end = new DateTime(twNow.Year, twNow.Month + 1, 1).AddMilliseconds(-1).ToUniversalTime();
 
         return await Where(x => start < x.AccountDate && x.AccountDate <= end && x.UserId == userId)
-                        .OrderByDescending(x => x.AccountDate)
                         .AsNoTracking().ToArrayAsync();
     }
 }
