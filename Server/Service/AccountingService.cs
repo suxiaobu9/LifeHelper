@@ -43,6 +43,7 @@ public class AccountingService
                         .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),
             Outlay = tmp.Where(x => x.Amount > 0)
+                        .OrderByDescending(x=>x.AccountDate)
                         .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),
         };

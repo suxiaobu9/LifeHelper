@@ -53,7 +53,8 @@ public class LineChatBotApiController : LineWebHookControllerBase
 
         foreach (var item in lineEvents)
         {
-            var user = allUsers.FirstOrDefault();
+            var user = allUsers.FirstOrDefault(x=>x.LineUserId == item.source.userId);
+
             if (user == null)
                 user = await userService.AddUser(item.source.userId);
 

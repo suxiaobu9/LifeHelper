@@ -3,49 +3,59 @@
 @using LifeHelper.Shared.Models.LIFF
 @using LifeHelper.Client.Service
 
-@inject HttpClient Http
-@inject LIFFService LIFF
+@inject HttpClient httpClient
+@inject LIFFService liff
+@inject AuthService auth
+@inject NavigationManager uriHelper;
 
 <PageTitle>小記帳</PageTitle>
 
-@if (monthlyAccounting == null)
-    return;
+<AuthorizeView>
+    <Authorized>
 
-<MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+        @if (monthlyAccounting == null)
+            return;
+
+        <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+
+    </Authorized>
+    <NotAuthorized>
+        未登入
+    </NotAuthorized>
+</AuthorizeView>
+
 
 
 @code {
     private MonthlyAccountingVm? monthlyAccounting;
     private string? IDToken;
 
+
     protected override async Task OnInitializedAsync()
     {
-        var LiffId = await Http.GetStringAsync("LIFF/GetLIFFId");
+        var LiffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
 
-        await LIFF.InitAsync(LiffId);
+        await liff.InitAsync(LiffId);
 
-        if (!await LIFF.IsLoggedInAsync())
+        if (!await liff.IsLoggedInAsync())
         {
-            await LIFF.LoginAsync();
+            await liff.LoginAsync();
             return;
         }
 
-        IDToken = await LIFF.GetIDTokenAsync();
-
-        Http.DefaultRequestHeaders.Add("Authorization", $"Bearer {IDToken}");
-
-        var repMsg = await Http.GetAsync("AccountingBook/MonthlyAccounting");
-
-        if (!repMsg.IsSuccessStatusCode && repMsg.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (!await auth.Login())
         {
-            await LIFF.LogoutAsync();
-            await LIFF.LoginAsync();
+            Console.WriteLine("logout");
+            await liff.LogoutAsync();
+            auth.Logout();
+            uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
             return;
         }
+
+        var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
 
         monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
 
         await base.OnInitializedAsync();
-
     }
 }
