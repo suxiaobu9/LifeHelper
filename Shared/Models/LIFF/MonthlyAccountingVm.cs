@@ -20,12 +20,13 @@ public class MonthlyAccountingVm
     /// <summary>
     /// 總收入
     /// </summary>
-    public int? TotalIncome
+    public int TotalIncome
     {
         get
         {
             if (Income == null)
                 return 0;
+
             return Income.Sum(x => x.Amount);
         }
     }

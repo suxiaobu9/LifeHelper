@@ -1,0 +1,40 @@
+﻿@using LifeHelper.Shared.Models.LIFF
+
+<div class="w-full border-2 rounded-t-3xl border-amber-600 flex justify-center">
+            <label class="py-1 font-bold text-amber-600">收入</label>
+        </div>
+        <div class="flex">
+            <div class="w-1/2 border-l-2 border-b-2 border-amber-600 flex justify-center">
+                <label class="py-1 font-bold text-amber-600">項目</label>
+            </div>
+            <div class="w-1/2 border-r-2 border-b-2 border-amber-600 flex justify-center">
+                <label class="py-1 font-bold text-amber-600">金額</label>
+            </div>
+        </div>
+        @if (Income != null)
+        {
+            foreach (var item in Income)
+            {
+                <div class="flex">
+                    <div class="w-1/2 border-l-2 border-r-2 border-amber-600 flex justify-center">
+                        <label class="py-2 font-bold">@item.Event</label>
+                    </div>
+                    <div class="w-1/2 border-r-2 border-amber-600 flex justify-center">
+                        <label class="py-2 font-bold">@item.Amount</label>
+                    </div>
+                </div>
+            }
+        }
+        <div class="w-full border-x-2 border-b-2 border-amber-600 bg-red-100 flex justify-center">
+            <label class="py-1 font-bold text-black">總收入  @TotalIncome</label>
+        </div>
+
+@code {
+
+    [Parameter]
+    public MonthlyAccountingVm.EventDetail[]? Income { get; set; }
+
+    [Parameter]
+    public int TotalIncome { get; set; }
+
+}
