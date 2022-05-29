@@ -45,14 +45,11 @@
 
         if (!await auth.Login())
         {
-            Console.WriteLine("Logout");
             await liff.LogoutAsync();
             auth.Logout();
             uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
             return;
         }
-
-            Console.WriteLine("Login");
 
         var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
 
