@@ -1,0 +1,48 @@
+﻿@using LifeHelper.Shared.Models.LIFF
+
+<div class="mt-10 w-full rounded-t-3xl bg-amber-600 flex justify-center">
+    <label class="py-1 font-bold text-white">總花費  @TotalOutlay</label>
+</div>
+
+<div class="flex">
+    <div class="w-1/3 flex justify-center">
+        <label class="p-2 font-bold text-amber-600">類型</label>
+    </div>
+    <div class="w-1/3 flex justify-center border-x-2 border-amber-600">
+        <label class="p-2 font-bold text-amber-600">總金額</label>
+    </div>
+    <div class="w-1/3 flex justify-center">
+        <label class="p-2 font-bold text-amber-600">占比</label>
+    </div>
+</div>
+@if (OutlayReportModel != null)
+{
+    for (var i = 0; i < OutlayReportModel.Length; i++)
+    {
+        var item = OutlayReportModel[i];
+
+        var bgCol = i / 3 % 2 == 0 ? "bg-orange-100" : "bg-red-100";
+
+        <div class="flex">
+            <div class="w-1/3 flex justify-center @bgCol">
+                <label class="p-2 font-bold">@item.Event</label>
+            </div>
+            <div class="w-1/3 flex justify-center @bgCol border-x-2 border-amber-600">
+                <label class="p-2 font-bold">@item.Total</label>
+            </div>
+            <div class="w-1/3 flex justify-center @bgCol">
+                <label class="p-2 font-bold">@item.Proportion%</label>
+            </div>
+        </div>
+    }
+}
+
+@code {
+
+    [Parameter]
+    public MonthlyAccountingVm.ReportDetail[]? OutlayReportModel { get; set; }
+
+    [Parameter]
+    public int TotalOutlay { get; set; }
+
+}
