@@ -33,28 +33,44 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var i = 0;
+        Console.Write(i++);
         var LiffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
+        Console.Write(i++);
 
         await liff.InitAsync(LiffId);
+        Console.Write(i++);
 
         if (!await liff.IsLoggedInAsync())
         {
+            Console.Write("IsLoggedInAsync1");
             await liff.LoginAsync();
+            Console.Write("IsLoggedInAsync2");
             return;
         }
 
+        Console.Write(i++);
         if (!await auth.Login())
         {
+            Console.Write("Login1");
             await liff.LogoutAsync();
+            Console.Write("Login2");
             auth.Logout();
+            Console.Write("Login3");
             uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
+            Console.Write("Login4");
             return;
         }
+        Console.Write(i++);
 
         var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
+        Console.Write(i++);
 
         monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
+        Console.Write(i++);
 
         await base.OnInitializedAsync();
+        Console.Write(i++);
+
     }
 }
