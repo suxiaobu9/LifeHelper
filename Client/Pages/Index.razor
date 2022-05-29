@@ -7,6 +7,7 @@
 @inject LIFFService liff
 @inject AuthService auth
 @inject NavigationManager uriHelper;
+@inject IJSRuntime js;
 
 <PageTitle>小記帳</PageTitle>
 
@@ -34,43 +35,45 @@
     protected override async Task OnInitializedAsync()
     {
         var i = 0;
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
         var LiffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
         await liff.InitAsync(LiffId);
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
         if (!await liff.IsLoggedInAsync())
         {
-            Console.Write("IsLoggedInAsync1");
+            var j = 0;
+            await js.InvokeVoidAsync("console.log", "j" + j++);
             await liff.LoginAsync();
-            Console.Write("IsLoggedInAsync2");
+            await js.InvokeVoidAsync("console.log", "j" + j++);
             return;
         }
 
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
         if (!await auth.Login())
         {
-            Console.Write("Login1");
+            var z = 0;
+            await js.InvokeVoidAsync("console.log", "z" + z++);
             await liff.LogoutAsync();
-            Console.Write("Login2");
+            await js.InvokeVoidAsync("console.log", "z" + z++);
             auth.Logout();
-            Console.Write("Login3");
+            await js.InvokeVoidAsync("console.log", "z" + z++);
             uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
-            Console.Write("Login4");
+            await js.InvokeVoidAsync("console.log", "z" + z++);
             return;
         }
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
         var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
         monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
         await base.OnInitializedAsync();
-        Console.Write(i++);
+        await js.InvokeVoidAsync("console.log", i++);
 
     }
 }
