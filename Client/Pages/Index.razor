@@ -7,7 +7,6 @@
 @inject LIFFService liff
 @inject AuthService auth
 @inject NavigationManager uriHelper;
-@inject IJSRuntime js;
 
 <PageTitle>小記帳</PageTitle>
 
@@ -34,46 +33,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var i = 0;
-        await js.InvokeVoidAsync("console.log", i++);
         var LiffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
-        await js.InvokeVoidAsync("console.log", i++);
 
         await liff.InitAsync(LiffId);
-        await js.InvokeVoidAsync("console.log", i++);
 
         if (!await liff.IsLoggedInAsync())
         {
-            var j = 0;
-            await js.InvokeVoidAsync("console.log", "j" + j++);
             await liff.LoginAsync();
-            await js.InvokeVoidAsync("console.log", "j" + j++);
             return;
         }
 
-        await js.InvokeVoidAsync("console.log", i++);
         if (!await auth.Login())
         {
-            var z = 0;
-            await js.InvokeVoidAsync("console.log", "z" + z++);
             await liff.LogoutAsync();
-            await js.InvokeVoidAsync("console.log", "z" + z++);
             auth.Logout();
-            await js.InvokeVoidAsync("console.log", "z" + z++);
             uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
-            await js.InvokeVoidAsync("console.log", "z" + z++);
             return;
         }
-        await js.InvokeVoidAsync("console.log", i++);
 
         var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
-        await js.InvokeVoidAsync("console.log", i++);
 
         monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
-        await js.InvokeVoidAsync("console.log", i++);
 
         await base.OnInitializedAsync();
-        await js.InvokeVoidAsync("console.log", i++);
 
     }
 }
