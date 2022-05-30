@@ -3,7 +3,7 @@
 ## User secret
 
 ```powershell
-# 進入到
+# 進入到 Server
 cd Server
 
 # 建立使用者的 user-secrets
@@ -16,5 +16,15 @@ dotnet user-secrets set "LineBot:ChannelSecret" ""
 dotnet user-secrets set "LIFF:LiffId" ""
 dotnet user-secrets set "LIFF:ChannelId" ""
 dotnet user-secrets set "LIFF:ChannelSecret" ""
+
+```
+
+## Tailwindcss
+
+```powershell
+# 進入到 Client
+cd Client
+
+npm install
 
 ```
