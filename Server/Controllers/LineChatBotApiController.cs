@@ -40,11 +40,18 @@ public class LineChatBotApiController : LineWebHookControllerBase
         if (this.ReceivedMessage == null || this.ReceivedMessage.events == null || !this.ReceivedMessage.events.Any())
             return Ok();
 
+        var isPostback = new Func<Event, bool>(x =>
+        {
+            return x.type.ToLower() == "postback";
+        });
+
+        var isText = new Func<Event, bool>(x =>
+        {
+            return x.type.ToLower() == "message" && x.message.type == "text";
+        });
+
         var lineEvents = this.ReceivedMessage.events
-            .Where(x => x != null &&
-            (x.type.ToLower() == "postback" ||
-                (x.type.ToLower() == "message" && x.message.type == "text")
-            ));
+            .Where(x => x != null && (isPostback(x) || isText(x)));
 
         var allEventUserIds = lineEvents.Select(x => x.source.userId)
                                             .Distinct().ToArray();
@@ -53,12 +60,12 @@ public class LineChatBotApiController : LineWebHookControllerBase
 
         foreach (var item in lineEvents)
         {
-            var user = allUsers.FirstOrDefault(x=>x.LineUserId == item.source.userId);
+            var user = allUsers.FirstOrDefault(x => x.LineUserId == item.source.userId);
 
             if (user == null)
                 user = await userService.AddUser(item.source.userId);
 
-            if (item.type.ToLower() == "postback")
+            if (isPostback(item))
             {
                 var postBackResult = await lineBotApiService.Postback(item);
 

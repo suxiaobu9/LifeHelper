@@ -3,7 +3,6 @@ using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
 using LifeHelper.Shared.Enum;
-using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace LifeHelper.Server.Service;
@@ -13,15 +12,18 @@ public class LineBotApiService
     private readonly AccountingRepository accountingRepository;
     private readonly DeleteAccountRepository deleteAccountRepository;
     private readonly UnitOfWork unitOfWork;
+    private readonly MemorandumRepository memorandumRepository;
     private readonly string IntRegex = @"-?\d+";
 
     public LineBotApiService(AccountingRepository accountingRepository,
         DeleteAccountRepository deleteAccountRepository,
+        MemorandumRepository memorandumRepository,
         UnitOfWork unitOfWork)
     {
         this.accountingRepository = accountingRepository;
         this.deleteAccountRepository = deleteAccountRepository;
         this.unitOfWork = unitOfWork;
+        this.memorandumRepository = memorandumRepository;   
     }
 
     /// <summary>
@@ -32,12 +34,24 @@ public class LineBotApiService
     /// <returns></returns>
     public async Task<LineReplyModel> AnalyzeMessages(Event lineEvent, User user)
     {
-        // 是否含整數
-        if (!string.IsNullOrWhiteSpace(lineEvent.message.text) &&
-            Regex.IsMatch(lineEvent.message.text, IntRegex))
-            return await Accounting(lineEvent, user);
+        var isAccounting = new Func<Event, bool>(x =>
+        {
+            var msg = lineEvent.message.text;
+            var regexMatch = Regex.Match(msg, IntRegex);
+            return regexMatch.Success && (msg.StartsWith(regexMatch.Value) || msg.EndsWith(regexMatch.Value));
+        });
 
-        return new LineReplyModel(LineReplyEnum.Message, "好的");
+        EventProcess eventProcess;
+
+        if (!string.IsNullOrWhiteSpace(lineEvent.message.text))
+        {
+            // 記帳規則
+            eventProcess = isAccounting(lineEvent) ? Accounting : Memo;
+
+            return await eventProcess(lineEvent, user);
+        }
+
+        return new LineReplyModel(LineReplyEnum.Message, "完成");
     }
 
     /// <summary>
@@ -98,6 +112,8 @@ public class LineBotApiService
         return new LineReplyModel(LineReplyEnum.Message, "刪除成功");
     }
 
+    private delegate Task<LineReplyModel> EventProcess(Event lineEvent, User user);
+
     /// <summary>
     /// 記帳
     /// </summary>
@@ -117,7 +133,7 @@ public class LineBotApiService
         if (!int.TryParse(intRegex.Value, out int amount))
             return new LineReplyModel(LineReplyEnum.Message, "型別轉換錯誤");
 
-        var eventName = sourceMsg.Replace(amount.ToString(), "").Replace("\n","");
+        var eventName = sourceMsg.Replace(amount.ToString(), "").Replace("\n", "");
 
         if (string.IsNullOrWhiteSpace(eventName))
             eventName = "其他";
@@ -151,5 +167,24 @@ public class LineBotApiService
         };
 
         return new LineReplyModel(LineReplyEnum.Json, FlexTemplate.AccountingFlexMessageTemplate(flexMessageModel));
+    }
+
+    /// <summary>
+    /// 備忘錄
+    /// </summary>
+    /// <param name="lineEvent"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private async Task<LineReplyModel> Memo(Event lineEvent, User user)
+    {
+        await memorandumRepository.AddAsync(new Memorandum
+        {
+            Memo = lineEvent.message.text,
+            UserId = user.Id
+        });
+
+        await unitOfWork.CompleteAsync();
+
+        return new LineReplyModel(LineReplyEnum.Message, "備忘錄");
     }
 }

@@ -15,7 +15,8 @@ public static class ServiceExtension
         services.AddScoped<UserRepository>();
         services.AddScoped<DeleteAccountRepository>();
         services.AddScoped<AccountingRepository>();
-
+        services.AddScoped<MemorandumRepository>();
+        
         services.AddHttpClient();
 
     }
