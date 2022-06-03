@@ -9,14 +9,14 @@ public static class ServiceExtension
         services.AddScoped<LineBotApiService>();
         services.AddScoped<AccountingService>();
         services.AddScoped<UserProfileService>();
-        
+
         services.AddScoped(typeof(Repository<>));
         services.AddScoped<UnitOfWork>();
         services.AddScoped<UserRepository>();
-        services.AddScoped<DeleteAccountRepository>();
+        services.AddScoped<DeleteConfirmRepository>();
         services.AddScoped<AccountingRepository>();
         services.AddScoped<MemorandumRepository>();
-        
+
         services.AddHttpClient();
 
     }

@@ -1,17 +1,17 @@
 ﻿namespace LifeHelper.Server.Repositories
 {
-    public class DeleteAccountRepository : Repository<DeleteAccount>
+    public class DeleteConfirmRepository : Repository<DeleteConfirm>
     {
-        public DeleteAccountRepository(LifeHelperContext db) : base(db) { }
+        public DeleteConfirmRepository(LifeHelperContext db) : base(db) { }
 
         /// <summary>
         /// 取得刪除帳務的資料
         /// </summary>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        public async Task<DeleteAccount?> GetDeleteAccount(int accountId)
+        public async Task<DeleteConfirm?> GetDeleteConfirm(int id)
         {
-            return await FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return await FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

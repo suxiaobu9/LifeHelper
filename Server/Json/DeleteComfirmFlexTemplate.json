@@ -1,0 +1,80 @@
+{
+  "type": "bubble",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "確定要刪除 ? ",
+        "size": "xl",
+        "weight": "bold"
+      },
+      {
+        "type": "separator",
+        "margin": "5px"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "text",
+            "text": "功能",
+            "flex": 0,
+            "size": "sm"
+          },
+          {
+            "type": "text",
+            "text": "{0}",
+            "align": "end",
+            "size": "sm"
+          }
+        ],
+        "paddingTop": "10px"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "text",
+            "text": "說明",
+            "flex": 0,
+            "size": "sm"
+          },
+          {
+            "type": "text",
+            "text": "{1}",
+            "align": "end",
+            "size": "sm"
+          }
+        ],
+        "paddingBottom": "15px",
+        "paddingTop": "5px"
+      },
+      {
+        "type": "separator"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "button",
+            "action": {
+              "type": "postback",
+              "label": "確定",
+              "data": "{2}"
+            },
+            "color": "#DC3545",
+            "style": "primary",
+            "height": "sm"
+          }
+        ],
+        "width": "90px",
+        "margin": "10px"
+      }
+    ]
+  }
+}

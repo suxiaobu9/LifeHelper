@@ -2,10 +2,7 @@
 
 public class AccountingFlexMessageModel
 {
-    /// <summary>
-    /// 帳務 Id
-    /// </summary>
-    public int AccountId { get; set; }
+    public DeleteFeatureModel DeleteConfirm { get; set; } = null!;
 
     /// <summary>
     /// 本月花費

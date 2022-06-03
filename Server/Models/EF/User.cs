@@ -8,6 +8,7 @@ namespace LifeHelper.Server.Models.EF
         public User()
         {
             Accountings = new HashSet<Accounting>();
+            DeleteConfirms = new HashSet<DeleteConfirm>();
             Memoranda = new HashSet<Memorandum>();
         }
 
@@ -17,6 +18,7 @@ namespace LifeHelper.Server.Models.EF
         public bool IsAdmin { get; set; }
 
         public virtual ICollection<Accounting> Accountings { get; set; }
+        public virtual ICollection<DeleteConfirm> DeleteConfirms { get; set; }
         public virtual ICollection<Memorandum> Memoranda { get; set; }
     }
 }

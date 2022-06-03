@@ -3,6 +3,8 @@ using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
 using LifeHelper.Shared.Enum;
+using LifeHelper.Shared.Utility;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace LifeHelper.Server.Service;
@@ -10,20 +12,20 @@ namespace LifeHelper.Server.Service;
 public class LineBotApiService
 {
     private readonly AccountingRepository accountingRepository;
-    private readonly DeleteAccountRepository deleteAccountRepository;
+    private readonly DeleteConfirmRepository deleteConfirmRepository;
     private readonly UnitOfWork unitOfWork;
     private readonly MemorandumRepository memorandumRepository;
     private readonly string IntRegex = @"-?\d+";
 
     public LineBotApiService(AccountingRepository accountingRepository,
-        DeleteAccountRepository deleteAccountRepository,
+        DeleteConfirmRepository deleteConfirmRepository,
         MemorandumRepository memorandumRepository,
         UnitOfWork unitOfWork)
     {
         this.accountingRepository = accountingRepository;
-        this.deleteAccountRepository = deleteAccountRepository;
+        this.deleteConfirmRepository = deleteConfirmRepository;
         this.unitOfWork = unitOfWork;
-        this.memorandumRepository = memorandumRepository;   
+        this.memorandumRepository = memorandumRepository;
     }
 
     /// <summary>
@@ -45,13 +47,98 @@ public class LineBotApiService
 
         if (!string.IsNullOrWhiteSpace(lineEvent.message.text))
         {
-            // 記帳規則
-            eventProcess = isAccounting(lineEvent) ? Accounting : Memo;
-
-            return await eventProcess(lineEvent, user);
+            // 判斷是記帳還是備忘錄
+            eventProcess = isAccounting(lineEvent) ? AddAccounting : AddMemo;
+            var result = await eventProcess(lineEvent, user);
+            return result;
         }
 
         return new LineReplyModel(LineReplyEnum.Message, "完成");
+    }
+
+    /// <summary>
+    /// 確認刪除
+    /// </summary>
+    /// <param name="postbackData"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private async Task<LineReplyModel> AddDeleteConfirm(string postbackData, User user)
+    {
+        var utcNow = DateTime.UtcNow;
+        var jsonParseSuccess = postbackData.JSONTryParse(out DeleteFeatureModel? model);
+
+        if (!jsonParseSuccess || model == null)
+            return new LineReplyModel(LineReplyEnum.Message, "資料錯誤");
+
+        var (success, description) = await GetDescription(model.FeatureName, model.FeatureId, user);
+
+        if (!success || string.IsNullOrWhiteSpace(description))
+            return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+
+        var newDeleteConfirm = new DeleteConfirm
+        {
+            Deadline = utcNow.AddMinutes(5),
+            UserId = user.Id,
+            FeatureId = model.FeatureId,
+            FeatureName = model.FeatureName
+        };
+
+        await deleteConfirmRepository.AddAsync(newDeleteConfirm);
+
+        await unitOfWork.CompleteAsync();
+
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplate(new DeleteConfirmModel(newDeleteConfirm.Id, newDeleteConfirm.FeatureName, description)));
+    }
+
+    /// <summary>
+    /// 更新過時時間
+    /// </summary>
+    /// <param name="deleteConfirm"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private async Task<LineReplyModel> UpdateDeadline(DeleteConfirm deleteConfirm, User user)
+    {
+        var utcNow = DateTime.UtcNow;
+        deleteConfirm.Deadline = utcNow.AddMinutes(5);
+        await unitOfWork.CompleteAsync();
+
+        var (success, description) = await GetDescription(deleteConfirm.FeatureName, deleteConfirm.FeatureId, user);
+
+        if (!success || string.IsNullOrWhiteSpace(description))
+            return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplate(new DeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, description)));
+    }
+
+    /// <summary>
+    /// 刪除資料
+    /// </summary>
+    /// <param name="deleteConfirm"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private async Task<LineReplyModel> KillData(DeleteConfirm deleteConfirm, User user)
+    {
+        switch (deleteConfirm.FeatureName)
+        {
+            case nameof(Models.EF.Accounting):
+                var accounting = await accountingRepository.GetAccounting(deleteConfirm.FeatureId, user.LineUserId);
+                if (accounting == null)
+                    return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+                accountingRepository.Remove(accounting);
+                break;
+            case nameof(Models.EF.Memorandum):
+                var memorandum = await memorandumRepository.GetMemorandum(deleteConfirm.FeatureId);
+                if (memorandum == null)
+                    return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+                memorandumRepository.Remove(memorandum);
+                break;
+            default:
+                return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+        }
+
+        await unitOfWork.CompleteAsync();
+
+        return new LineReplyModel(LineReplyEnum.Message, "刪除成功");
     }
 
     /// <summary>
@@ -59,57 +146,60 @@ public class LineBotApiService
     /// </summary>
     /// <param name="lineEvent"></param>
     /// <returns></returns>
-    public async Task<LineReplyModel> Postback(Event lineEvent)
+    public async Task<LineReplyModel> Postback(Event lineEvent, User user)
     {
-        // 取得帳務 Id
-        var convertSuccess = int.TryParse(lineEvent.postback.data, out int accountId);
+        var postbackData = Encoding.UTF8.GetString(Convert.FromBase64String(lineEvent.postback.data));
 
-        if (!convertSuccess)
-            return new LineReplyModel(LineReplyEnum.Message, "轉換失敗");
-
-        var account = await accountingRepository.GetAccounting(accountId, lineEvent.source.userId);
-
-        if (account == null)
-            return new LineReplyModel(LineReplyEnum.Message, "查無帳務");
-
-        // 取得刪除帳務的資訊
-        var deleteEvent = await deleteAccountRepository.GetDeleteAccount(accountId);
-
-        var result = new ConfirmModel
-        {
-            AccountId = accountId,
-            EventName = account.Event,
-            Pay = account.Amount
-        };
+        // 取得確認刪除的 Id
+        var getDeleteConfirmIdSuccess = int.TryParse(postbackData, out int deleteConfirmId);
 
         var utcNow = DateTime.UtcNow;
 
-        // 沒有刪除帳務的資訊
-        if (deleteEvent == null)
+        // 沒有取得確認刪除的 Id ， 代表是需要確認的
+        if (!getDeleteConfirmIdSuccess)
+            return await AddDeleteConfirm(postbackData, user);
+
+        var deleteConfirm = await deleteConfirmRepository.GetDeleteConfirm(deleteConfirmId);
+
+        if (deleteConfirm == null)
+            return new LineReplyModel(LineReplyEnum.Message, "查無資料");
+
+        // 過期
+        if (deleteConfirm.Deadline < utcNow)
+            return await UpdateDeadline(deleteConfirm, user);
+
+        //刪除資料
+        return await KillData(deleteConfirm, user);
+    }
+
+    /// <summary>
+    /// 找到 flex message 中的說明描述
+    /// </summary>
+    /// <param name="featureName"></param>
+    /// <param name="featureId"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private async Task<(bool success, string? description)> GetDescription(string featureName, int featureId, User user)
+    {
+        var description = "";
+        switch (featureName)
         {
-            await deleteAccountRepository.AddAsync(new DeleteAccount
-            {
-                AccountId = accountId,
-                Deadline = utcNow.AddMinutes(5),
-            });
-            await unitOfWork.CompleteAsync();
-
-            return new LineReplyModel(LineReplyEnum.Json, FlexTemplate.DeleteAccountingComfirm(result));
+            case nameof(Models.EF.Accounting):
+                var accounting = await accountingRepository.GetAccounting(featureId, user.LineUserId);
+                if (accounting == null)
+                    return (false, null);
+                description = accounting.Event;
+                break;
+            case nameof(Models.EF.Memorandum):
+                var memorandum = await memorandumRepository.GetMemorandum(featureId);
+                if (memorandum == null)
+                    return (false, null);
+                description = memorandum.Memo;
+                break;
+            default:
+                return (false, null);
         }
-
-        // 刪除帳務的資訊過期
-        if (deleteEvent.Deadline < utcNow)
-        {
-            deleteEvent.Deadline = utcNow.AddMinutes(5);
-            await unitOfWork.CompleteAsync();
-            return new LineReplyModel(LineReplyEnum.Json, FlexTemplate.DeleteAccountingComfirm(result));
-        }
-
-        deleteAccountRepository.Remove(deleteEvent);
-        accountingRepository.Remove(account);
-
-        await unitOfWork.CompleteAsync();
-        return new LineReplyModel(LineReplyEnum.Message, "刪除成功");
+        return (true, description);
     }
 
     private delegate Task<LineReplyModel> EventProcess(Event lineEvent, User user);
@@ -120,7 +210,7 @@ public class LineBotApiService
     /// <param name="lineEvent"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<LineReplyModel> Accounting(Event lineEvent, User user)
+    private async Task<LineReplyModel> AddAccounting(Event lineEvent, User user)
     {
         var sourceMsg = lineEvent.message.text.Replace(Environment.NewLine, "");
 
@@ -158,7 +248,7 @@ public class LineBotApiService
 
         var flexMessageModel = new AccountingFlexMessageModel
         {
-            AccountId = accounting.Id,
+            DeleteConfirm = new DeleteFeatureModel(nameof(Models.EF.Accounting), accounting.Id),
             MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
             MonthlyIncome = Math.Abs(monthlyAccountings.Where(x => x.Amount < 0).Sum(x => x.Amount)),
             EventName = accounting.Event,
@@ -166,7 +256,7 @@ public class LineBotApiService
             CreateDate = utcNow.AddHours(8)
         };
 
-        return new LineReplyModel(LineReplyEnum.Json, FlexTemplate.AccountingFlexMessageTemplate(flexMessageModel));
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplate(flexMessageModel));
     }
 
     /// <summary>
@@ -175,7 +265,7 @@ public class LineBotApiService
     /// <param name="lineEvent"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<LineReplyModel> Memo(Event lineEvent, User user)
+    private async Task<LineReplyModel> AddMemo(Event lineEvent, User user)
     {
         await memorandumRepository.AddAsync(new Memorandum
         {
