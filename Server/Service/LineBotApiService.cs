@@ -275,6 +275,8 @@ public class LineBotApiService
 
         await unitOfWork.CompleteAsync();
 
-        return new LineReplyModel(LineReplyEnum.Message, "備忘錄");
+        var memoes = await memorandumRepository.GetUserMemorandum(user.Id);
+
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplate(memoes));
     }
 }

@@ -39,7 +39,9 @@ public class LineChatBotApiController : LineWebHookControllerBase
     {
         try
         {
-            if (this.ReceivedMessage == null || this.ReceivedMessage.events == null || !this.ReceivedMessage.events.Any())
+            if (this.ReceivedMessage == null || 
+                this.ReceivedMessage.events == null || 
+                !this.ReceivedMessage.events.Any())
                 return Ok();
 
             var isPostback = new Func<Event, bool>(x =>

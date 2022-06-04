@@ -45,11 +45,35 @@ public class FlexTemplate
         using var stream = new StreamReader("json\\DeleteComfirmFlexTemplate.json");
         var template = await stream.ReadToEndAsync();
 
-        template = template.Replace( "{0}", model.FeatureDisplay)
+        template = template.Replace("{0}", model.FeatureDisplay)
                             .Replace("{1}", model.Description)
                             .Replace("{2}", Convert.ToBase64String(Encoding.UTF8.GetBytes(model.DeleteConfirmId.ToString())));
 
         return FlexMessage(template);
+    }
 
+    /// <summary>
+    /// 備忘錄
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public static async Task<string> MemorandumFlexMessageTemplate(Memorandum[] memoes)
+    {
+        using var templateStream = new StreamReader("json\\MemorandumFlexMessageTemplate.json");
+        var template = await templateStream.ReadToEndAsync();
+        using var memoItemStream = new StreamReader("json\\MemorandumItemTemplate.json");
+        var memoItem = await memoItemStream.ReadToEndAsync();
+
+        var memoBody = new List<string>();
+        foreach (var memo in memoes)
+        {
+            memoBody.Add(memoItem
+                .Replace("{0}", memo.Memo)
+                .Replace("{1}", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new DeleteFeatureModel(nameof(Memorandum), memo.Id))))));
+        }
+
+        template = template.Replace("{0}", string.Join(",", memoBody));
+
+        return FlexMessage(template);
     }
 }
