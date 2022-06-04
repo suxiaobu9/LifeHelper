@@ -37,41 +37,56 @@ public class LineChatBotApiController : LineWebHookControllerBase
     [LineVerifySignature]
     public async Task<IActionResult> Index()
     {
-        if (this.ReceivedMessage == null || this.ReceivedMessage.events == null || !this.ReceivedMessage.events.Any())
-            return Ok();
-
-        var lineEvents = this.ReceivedMessage.events
-            .Where(x => x != null &&
-            (x.type.ToLower() == "postback" ||
-                (x.type.ToLower() == "message" && x.message.type == "text")
-            ));
-
-        var allEventUserIds = lineEvents.Select(x => x.source.userId)
-                                            .Distinct().ToArray();
-
-        var allUsers = await userService.GetUsers(allEventUserIds);
-
-        foreach (var item in lineEvents)
+        try
         {
-            var user = allUsers.FirstOrDefault(x=>x.LineUserId == item.source.userId);
+            if (this.ReceivedMessage == null || 
+                this.ReceivedMessage.events == null || 
+                !this.ReceivedMessage.events.Any())
+                return Ok();
 
-            if (user == null)
-                user = await userService.AddUser(item.source.userId);
-
-            if (item.type.ToLower() == "postback")
+            var isPostback = new Func<Event, bool>(x =>
             {
-                var postBackResult = await lineBotApiService.Postback(item);
+                return x.type.ToLower() == "postback";
+            });
 
-                ReplyToUser(item, postBackResult);
+            var isText = new Func<Event, bool>(x =>
+            {
+                return x.type.ToLower() == "message" && x.message.type == "text";
+            });
 
-                continue;
+            var lineEvents = this.ReceivedMessage.events
+                .Where(x => x != null && (isPostback(x) || isText(x)));
+
+            var allEventUserIds = lineEvents.Select(x => x.source.userId)
+                                                .Distinct().ToArray();
+
+            var allUsers = await userService.GetUsers(allEventUserIds);
+
+            foreach (var item in lineEvents)
+            {
+                var user = allUsers.FirstOrDefault(x => x.LineUserId == item.source.userId);
+
+                if (user == null)
+                    user = await userService.AddUser(item.source.userId);
+
+                if (isPostback(item))
+                {
+                    var postBackResult = await lineBotApiService.Postback(item, user);
+
+                    ReplyToUser(item, postBackResult);
+
+                    continue;
+                }
+
+                var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(item, user);
+
+                ReplyToUser(item, analyzeMessagesResult);
             }
 
-            var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(item, user);
-
-            ReplyToUser(item, analyzeMessagesResult);
         }
-
+        catch (Exception ex)
+        {
+        }
         return Ok();
     }
 
@@ -84,6 +99,7 @@ public class LineChatBotApiController : LineWebHookControllerBase
     /// <param name="model"></param>
     private void ReplyToUser(Event lineEvent, LineReplyModel model)
     {
+
         LineReply? lineReply = model.LineReplyType switch
         {
             LineReplyEnum.Message => ReplyMessage,

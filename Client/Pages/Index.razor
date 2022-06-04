@@ -12,11 +12,10 @@
 
 <AuthorizeView>
     <Authorized>
-
-        @if (monthlyAccounting == null)
-            return;
-
-        <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+        @if (monthlyAccounting != null)
+        {
+            <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+        }
 
     </Authorized>
     <NotAuthorized>

@@ -2,12 +2,12 @@
 
 public class DeleteAccountService
 {
-    private readonly DeleteAccountRepository deleteAccountRepository;
+    private readonly DeleteConfirmRepository deleteConfirmRepository;
     private readonly UnitOfWork unitOfWork;
-    public DeleteAccountService(DeleteAccountRepository deleteAccountRepository,
+    public DeleteAccountService(DeleteConfirmRepository deleteAccountRepository,
         UnitOfWork unitOfWork)
     {
-        this.deleteAccountRepository = deleteAccountRepository;
+        this.deleteConfirmRepository = deleteAccountRepository;
         this.unitOfWork = unitOfWork;
     }
 
@@ -16,23 +16,8 @@ public class DeleteAccountService
     /// </summary>
     /// <param name="accountId"></param>
     /// <returns></returns>
-    public async Task<DeleteAccount?> GetDeleteAccount(int accountId)
+    public async Task<DeleteConfirm?> GetDeleteConfirm(int accountId)
     {
-        return await deleteAccountRepository.GetDeleteAccount(accountId);
+        return await deleteConfirmRepository.GetDeleteConfirm(accountId);
     }
-
-    /// <summary>
-    /// 新增刪除帳務的確認資料
-    /// </summary>
-    /// <returns></returns>
-    public async Task AddDeleteAccount(int accountId)
-    {
-        await deleteAccountRepository.AddAsync(new DeleteAccount
-        {
-            AccountId = accountId,
-            Deadline = DateTime.UtcNow.AddMinutes(5),
-        });
-        await unitOfWork.CompleteAsync();
-    }
-
 }

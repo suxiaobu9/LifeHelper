@@ -17,7 +17,7 @@ namespace LifeHelper.Server.Models.EF
         }
 
         public virtual DbSet<Accounting> Accountings { get; set; } = null!;
-        public virtual DbSet<DeleteAccount> DeleteAccounts { get; set; } = null!;
+        public virtual DbSet<DeleteConfirm> DeleteConfirms { get; set; } = null!;
         public virtual DbSet<Memorandum> Memoranda { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
 
@@ -44,17 +44,19 @@ namespace LifeHelper.Server.Models.EF
                     .HasConstraintName("FK_Accounting_User");
             });
 
-            modelBuilder.Entity<DeleteAccount>(entity =>
+            modelBuilder.Entity<DeleteConfirm>(entity =>
             {
-                entity.ToTable("DeleteAccount");
+                entity.ToTable("DeleteConfirm");
 
                 entity.Property(e => e.Deadline).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Account)
-                    .WithMany(p => p.DeleteAccounts)
-                    .HasForeignKey(d => d.AccountId)
+                entity.Property(e => e.FeatureName).HasMaxLength(50);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.DeleteConfirms)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_DeleteAccount_Accounting");
+                    .HasConstraintName("FK_DeleteConfirm_User");
             });
 
             modelBuilder.Entity<Memorandum>(entity =>
