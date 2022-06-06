@@ -16,10 +16,14 @@
         {
             <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
         }
+        else
+        {
+            <Loading></Loading>
+        }
 
     </Authorized>
     <NotAuthorized>
-        未登入
+        <Loading></Loading>
     </NotAuthorized>
 </AuthorizeView>
 
