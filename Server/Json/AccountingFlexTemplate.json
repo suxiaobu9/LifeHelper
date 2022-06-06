@@ -168,6 +168,10 @@
         "justifyContent": "space-around"
       },
       {
+        "type": "separator",
+        "margin": "xxl"
+      },
+      {
         "type": "box",
         "layout": "horizontal",
         "margin": "md",

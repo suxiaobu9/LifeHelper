@@ -2,8 +2,6 @@
 
 public class AccountingFlexMessageModel
 {
-    public DeleteFeatureModel DeleteConfirm { get; set; } = null!;
-
     /// <summary>
     /// 本月花費
     /// </summary>
@@ -28,4 +26,9 @@ public class AccountingFlexMessageModel
     /// 建立時間
     /// </summary>
     public DateTime CreateDate { get; set; }
+
+    /// <summary>
+    /// 確認刪除的 Id
+    /// </summary>
+    public FlexDeleteConfirmModel DeleteConfirm { get; set; } = null!;
 }

@@ -18,6 +18,17 @@ public class AccountingRepository : Repository<Accounting>
     }
 
     /// <summary>
+    /// 取得帳務資訊
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Task<Accounting?> GetAccounting(int accountId, int userId)
+    {
+        return FirstOrDefaultAsync(x => x.Id == accountId && x.UserId == userId);
+    }
+
+    /// <summary>
     /// 取得某月帳務
     /// </summary>
     /// <param name="userId"></param>
