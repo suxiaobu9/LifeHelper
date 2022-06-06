@@ -5,7 +5,76 @@
     "type": "box",
     "layout": "vertical",
     "contents": [
-      {0}
+      {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "text",
+            "text": "備忘錄",
+            "size": "sm",
+            "color": "#1DB446",
+            "weight": "bold"
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "filler"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [],
+                "cornerRadius": "30px",
+                "height": "12px",
+                "width": "12px",
+                "borderColor": "#6486E3",
+                "borderWidth": "2px"
+              },
+              {
+                "type": "filler"
+              }
+            ],
+            "flex": 0
+          },
+          {
+            "type": "text",
+            "text": "{0}",
+            "gravity": "center",
+            "size": "sm",
+            "wrap": true
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "button",
+                "action": {
+                  "type": "postback",
+                  "label": "刪除",
+                  "data": "{1}"
+                },
+                "style": "primary",
+                "height": "sm",
+                "color": "#0069d9"
+              }
+            ],
+            "flex": 0,
+            "justifyContent": "center"
+          }
+        ],
+        "spacing": "lg",
+        "margin": "xl"
+      }
     ]
   }
 }

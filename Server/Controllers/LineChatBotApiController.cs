@@ -17,15 +17,18 @@ namespace LifeHelper.Server.Controllers;
 public class LineChatBotApiController : LineWebHookControllerBase
 {
     private readonly UserService userService;
+    private readonly DeleteConfirmService deleteConfirmService;
     private readonly LineBotApiService lineBotApiService;
 
     public LineChatBotApiController(UserService userService,
         LineBotApiService lineBotApiService,
+        DeleteConfirmService deleteConfirmService,
         IOptions<LineChatBotSetting> lineChatBotSetting)
     {
         this.userService = userService;
         this.lineBotApiService = lineBotApiService;
         this.ChannelAccessToken = lineChatBotSetting.Value.ChannelAccessToken;
+        this.deleteConfirmService = deleteConfirmService;
     }
 
     /// <summary>
@@ -39,48 +42,48 @@ public class LineChatBotApiController : LineWebHookControllerBase
     {
         try
         {
-            if (this.ReceivedMessage == null || 
-                this.ReceivedMessage.events == null || 
+            if (this.ReceivedMessage == null ||
+                this.ReceivedMessage.events == null ||
                 !this.ReceivedMessage.events.Any())
                 return Ok();
 
-            var isPostback = new Func<Event, bool>(x =>
+            var isPostbackEvent = new Func<Event, bool>(x =>
             {
                 return x.type.ToLower() == "postback";
             });
 
-            var isText = new Func<Event, bool>(x =>
+            var isTextMessageEvent = new Func<Event, bool>(x =>
             {
                 return x.type.ToLower() == "message" && x.message.type == "text";
             });
 
             var lineEvents = this.ReceivedMessage.events
-                .Where(x => x != null && (isPostback(x) || isText(x)));
+                .Where(x => x != null && (isPostbackEvent(x) || isTextMessageEvent(x)));
 
-            var allEventUserIds = lineEvents.Select(x => x.source.userId)
+            var allUserLineIds = lineEvents.Select(x => x.source.userId)
                                                 .Distinct().ToArray();
 
-            var allUsers = await userService.GetUsers(allEventUserIds);
+            var allUserInfos = await userService.GetUsers(allUserLineIds);
 
-            foreach (var item in lineEvents)
+            foreach (var lineEvent in lineEvents)
             {
-                var user = allUsers.FirstOrDefault(x => x.LineUserId == item.source.userId);
+                var user = allUserInfos.FirstOrDefault(x => x.LineUserId == lineEvent.source.userId);
 
                 if (user == null)
-                    user = await userService.AddUser(item.source.userId);
+                    user = await userService.AddUser(lineEvent.source.userId);
 
-                if (isPostback(item))
+                if (isPostbackEvent(lineEvent))
                 {
-                    var postBackResult = await lineBotApiService.Postback(item, user);
+                    var confirmResult = await deleteConfirmService.DeleteConfirmation(lineEvent, user);
 
-                    ReplyToUser(item, postBackResult);
+                    ReplyToUser(lineEvent, confirmResult);
 
                     continue;
                 }
 
-                var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(item, user);
+                var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(lineEvent, user);
 
-                ReplyToUser(item, analyzeMessagesResult);
+                ReplyToUser(lineEvent, analyzeMessagesResult);
             }
 
         }
