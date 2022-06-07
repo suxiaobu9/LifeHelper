@@ -33,7 +33,7 @@ public class UserService
         var user = new User
         {
             LineUserId = userLineId,
-            Name = userLineId,
+            Name = userLineId[..10],
             IsAdmin = false
         };
 
