@@ -9,14 +9,20 @@ namespace LifeHelper.Server.Controllers;
 public class AccountingBookController : Controller
 {
     private readonly AccountingService accountingService;
-    public AccountingBookController(AccountingService accountingService)
+    private readonly UserProfile? userProfile;
+    public AccountingBookController(AccountingService accountingService,
+        UserProfileService userProfileService)
     {
         this.accountingService = accountingService;
+        this.userProfile = userProfileService.UserProfile;
     }
 
     [HttpGet("MonthlyAccounting")]
     public async Task<MonthlyAccountingVm?> MonthlyAccounting()
     {
-        return await accountingService.MonthlyAccounting();
+        if (userProfile == null)
+            return null;
+
+        return await accountingService.MonthlyAccounting(userProfile);
     }
 }

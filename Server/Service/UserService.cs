@@ -5,14 +5,11 @@ namespace LifeHelper.Server.Service;
 public class UserService
 {
     private readonly UserRepository userRepository;
-    private readonly UserProfile? userProfile;
     private readonly UnitOfWork unitOfWork;
     public UserService(UserRepository userRepository,
-        UserProfileService userProfileService,
         UnitOfWork unitOfWork)
     {
         this.userRepository = userRepository;
-        this.userProfile = userProfileService.UserProfile;
         this.unitOfWork = unitOfWork;
     }
 
@@ -51,11 +48,8 @@ public class UserService
     /// Upsert 目前使用者 並回傳
     /// </summary>
     /// <returns></returns>
-    public async Task<User?> UpsertCurrentUser()
+    public async Task<User?> UpsertUser(UserProfile userProfile)
     {
-        if (userProfile == null)
-            return null;
-
         var user = await userRepository.GetUser(userProfile.UserLineId);
 
         if (user == null)

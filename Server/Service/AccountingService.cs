@@ -10,17 +10,14 @@ namespace LifeHelper.Server.Service;
 
 public class AccountingService
 {
-    private readonly UserProfile? userProfile;
     private readonly AccountingRepository accountingRepository;
     private readonly UserService userService;
     private readonly UnitOfWork unitOfWork;
 
-    public AccountingService(UserProfileService userProfileService,
-        UserService userService,
+    public AccountingService(UserService userService,
         UnitOfWork unitOfWork,
         AccountingRepository accountingRepository)
     {
-        this.userProfile = userProfileService.UserProfile;
         this.accountingRepository = accountingRepository;
         this.userService = userService;
         this.unitOfWork = unitOfWork;
@@ -30,12 +27,10 @@ public class AccountingService
     /// 取得月份帳務資料
     /// </summary>
     /// <returns></returns>
-    public async Task<MonthlyAccountingVm?> MonthlyAccounting()
+    public async Task<MonthlyAccountingVm?> MonthlyAccounting(UserProfile userProfile)
     {
-        if (userProfile == null)
-            return null;
 
-        var user = await userService.UpsertCurrentUser();
+        var user = await userService.UpsertUser(userProfile);
 
         if (user == null)
             return null;
