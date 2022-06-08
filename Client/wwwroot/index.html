@@ -9,7 +9,7 @@
     <link href="css/tailwind/tailwind.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="LifeHelper.Client.styles.css" rel="stylesheet" />
-    <link href="css/loading.css" rel="stylesheet" />
+    <link href="css/loader-spinner.css" rel="stylesheet" />
     <link href="manifest.json" rel="manifest" />
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
@@ -17,13 +17,13 @@
 
 <body>
     <div id="app">
-        <link href="css/loading.css" rel="stylesheet" />
-        <div class="loading">
-            <div class="loader">
-                <div class="ball"></div>
-                <div class="ball"></div>
-                <div class="ball"></div>
-                <div class="ball"></div>
+        <div class="loader-container">
+            <div class="loader-spinner">
+                <svg viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="load one" cx="60" cy="60" r="20" pathLength="1" />
+                    <circle class="load two" cx="60" cy="60" r="10" />
+                    <circle class="load three" cx="60" cy="60" r="30" pathLength="1" />
+                </svg>
             </div>
         </div>
     </div>
