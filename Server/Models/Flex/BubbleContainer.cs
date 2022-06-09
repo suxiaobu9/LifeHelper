@@ -203,8 +203,8 @@ public class BlockContent
     public string? Color { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("weight")]
-    public string? Weight { get; set; }
+    [JsonPropertyName("width")]
+    public string? Width { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("style")]
@@ -277,6 +277,11 @@ public class BlockContent
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("offsetEnd")]
     public string? OffsetEnd { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("justifyContent")]
+    public string? JustifyContent { get; set; }
+    
 }
 
 public class Background
