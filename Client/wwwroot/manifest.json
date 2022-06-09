@@ -1,6 +1,6 @@
 {
-  "name": "LifeHelper",
-  "short_name": "LifeHelper",
+  "name": "小記帳",
+  "short_name": "小記帳",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

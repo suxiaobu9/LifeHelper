@@ -46,11 +46,13 @@ public class FlexTemplate
 
         var flexModel = JsonSerializer.Deserialize<BubbleContainer>(template);
 
-        var flexContent = flexModel.Body.Contents[..4].ToList();
+        flexModel.Body.Contents[7].Contents = flexModel.Body.Contents[7].Contents[1..];
 
-        flexContent.AddRange(flexModel.Body.Contents[8..].ToList());
+        var flexContent = flexModel.Body.Contents[..4];
 
-        flexModel.Body.Contents = flexContent.ToArray();
+        flexContent = flexContent.Concat(flexModel.Body.Contents[6..]).ToArray();
+
+        flexModel.Body.Contents = flexContent;
 
         template = JsonSerializer.Serialize(flexModel);
 
