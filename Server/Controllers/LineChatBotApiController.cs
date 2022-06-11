@@ -38,7 +38,7 @@ public class LineChatBotApiController : LineWebHookControllerBase
     [HttpPost]
     [Route("")]
     [LineVerifySignature]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync()
     {
         try
         {
@@ -63,25 +63,25 @@ public class LineChatBotApiController : LineWebHookControllerBase
             var allUserLineIds = lineEvents.Select(x => x.source.userId)
                                                 .Distinct().ToArray();
 
-            var allUserInfos = await userService.GetUsers(allUserLineIds);
+            var allUserInfos = await userService.GetUsersAsync(allUserLineIds);
 
             foreach (var lineEvent in lineEvents)
             {
                 var user = allUserInfos.FirstOrDefault(x => x.LineUserId == lineEvent.source.userId);
 
                 if (user == null)
-                    user = await userService.AddUser(lineEvent.source.userId);
+                    user = await userService.AddUserAsync(lineEvent.source.userId);
 
                 if (isPostbackEvent(lineEvent))
                 {
-                    var confirmResult = await deleteConfirmService.DeleteConfirmation(lineEvent, user);
+                    var confirmResult = await deleteConfirmService.DeleteConfirmationAsync(lineEvent, user);
 
                     ReplyToUser(lineEvent, confirmResult);
 
                     continue;
                 }
 
-                var analyzeMessagesResult = await lineBotApiService.AnalyzeMessages(lineEvent, user);
+                var analyzeMessagesResult = await lineBotApiService.AnalyzeMessagesAsync(lineEvent, user);
 
                 ReplyToUser(lineEvent, analyzeMessagesResult);
             }

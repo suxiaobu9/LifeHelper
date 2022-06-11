@@ -9,9 +9,9 @@
         /// </summary>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        public async Task<DeleteConfirm?> GetDeleteConfirm(int id)
+        public Task<DeleteConfirm?> GetDeleteConfirmAsync(int id)
         {
-            return await FirstOrDefaultAsync(x => x.Id == id);
+            return FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

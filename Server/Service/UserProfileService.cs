@@ -22,7 +22,7 @@ public class UserProfileService
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<UserProfile?> GetUserProfile(string token)
+    public async Task<UserProfile?> GetUserProfileAsync(string token)
     {
         if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(LIFFSetting.ChannelId))
             return null;
@@ -38,7 +38,14 @@ public class UserProfileService
         if (!responseMsg.IsSuccessStatusCode)
             return null;
 
-        return await responseMsg.Content.ReadFromJsonAsync<UserProfile?>();
+        var result = await responseMsg.Content.ReadFromJsonAsync<UserProfile?>();
+
+        if (result == null)
+            return null;
+
+        result.IdToken = token;
+
+        return result;
     }
 
     /// <summary>
@@ -46,7 +53,7 @@ public class UserProfileService
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    public async Task SetUserProfile(HttpContext context)
+    public async Task SetUserProfileAsync(HttpContext context)
     {
         var authorization = context.Request.Headers["Authorization"];
 
@@ -56,6 +63,6 @@ public class UserProfileService
         var token = authorization[0]["bearer".Length..];
 
 
-        UserProfile = await GetUserProfile(token);
+        UserProfile = await GetUserProfileAsync(token);
     }
 }

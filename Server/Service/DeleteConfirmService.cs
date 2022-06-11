@@ -34,9 +34,9 @@ public class DeleteConfirmService
     /// </summary>
     /// <param name="accountId"></param>
     /// <returns></returns>
-    public async Task<DeleteConfirm?> GetDeleteConfirm(int accountId)
+    public Task<DeleteConfirm?> GetDeleteConfirmAsync(int accountId)
     {
-        return await deleteConfirmRepository.GetDeleteConfirm(accountId);
+        return deleteConfirmRepository.GetDeleteConfirmAsync(accountId);
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class DeleteConfirmService
     /// </summary>
     /// <param name="lineEvent"></param>
     /// <returns></returns>
-    public async Task<LineReplyModel> DeleteConfirmation(Event lineEvent, User user)
+    public async Task<LineReplyModel> DeleteConfirmationAsync(Event lineEvent, User user)
     {
         var postbackData = lineEvent.postback.data.Base64Decode();
 
@@ -54,7 +54,7 @@ public class DeleteConfirmService
         if (!convertJsonSuccess || flexDeleteConfirm == null)
             return new LineReplyModel(LineReplyEnum.Message, "格式錯誤");
 
-        var description = await GetDescription(flexDeleteConfirm.FeatureName, flexDeleteConfirm.FeatureId, user);
+        var description = await GetDescriptionAsync(flexDeleteConfirm.FeatureName, flexDeleteConfirm.FeatureId, user);
 
         if (string.IsNullOrWhiteSpace(description))
             return new LineReplyModel(LineReplyEnum.Message, "查無資料");
@@ -63,21 +63,21 @@ public class DeleteConfirmService
 
         if (flexDeleteConfirm.Id == null)
         {
-            deleteConfirm = await AddDeleteConfirm(flexDeleteConfirm.FeatureName, flexDeleteConfirm.FeatureId, user.Id);
-            return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplate(description, new FlexDeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, deleteConfirm.FeatureId)));
+            deleteConfirm = await AddDeleteConfirmAsync(flexDeleteConfirm.FeatureName, flexDeleteConfirm.FeatureId, user.Id);
+            return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplateAsync(description, new FlexDeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, deleteConfirm.FeatureId)));
         }
 
-        deleteConfirm = await deleteConfirmRepository.GetDeleteConfirm(flexDeleteConfirm.Id.Value);
+        deleteConfirm = await deleteConfirmRepository.GetDeleteConfirmAsync(flexDeleteConfirm.Id.Value);
 
         if (deleteConfirm == null)
             return new LineReplyModel(LineReplyEnum.Message, "查無資料");
 
         // 過期
         if (deleteConfirm.Deadline < DateTime.UtcNow)
-            return await UpdateDeadline(deleteConfirm, user);
+            return await UpdateDeadlineAsync(deleteConfirm, user);
 
         //刪除資料
-        return await KillData(deleteConfirm, user.Id);
+        return await KillDataAsync(deleteConfirm, user.Id);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class DeleteConfirmService
     /// <param name="featureId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<DeleteConfirm> AddDeleteConfirm(string featureName, int featureId, int userId)
+    public async Task<DeleteConfirm> AddDeleteConfirmAsync(string featureName, int featureId, int userId)
     {
         var deleteConfirm = new DeleteConfirm
         {
@@ -111,7 +111,7 @@ public class DeleteConfirmService
     /// <param name="featureId"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<string?> GetDescription(string featureName, int featureId, User user)
+    private async Task<string?> GetDescriptionAsync(string featureName, int featureId, User user)
     {
         var description = "";
 
@@ -142,18 +142,18 @@ public class DeleteConfirmService
     /// <param name="deleteConfirm"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<LineReplyModel> UpdateDeadline(DeleteConfirm deleteConfirm, User user)
+    private async Task<LineReplyModel> UpdateDeadlineAsync(DeleteConfirm deleteConfirm, User user)
     {
         var utcNow = DateTime.UtcNow;
         deleteConfirm.Deadline = utcNow.AddMinutes(5);
         await unitOfWork.CompleteAsync();
 
-        var description = await GetDescription(deleteConfirm.FeatureName, deleteConfirm.FeatureId, user);
+        var description = await GetDescriptionAsync(deleteConfirm.FeatureName, deleteConfirm.FeatureId, user);
 
         if (string.IsNullOrWhiteSpace(description))
             return new LineReplyModel(LineReplyEnum.Message, "查無資料");
 
-        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplate(description, new FlexDeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, deleteConfirm.FeatureId)));
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplateAsync(description, new FlexDeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, deleteConfirm.FeatureId)));
     }
 
     /// <summary>
@@ -162,25 +162,25 @@ public class DeleteConfirmService
     /// <param name="deleteConfirm"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<LineReplyModel> KillData(DeleteConfirm deleteConfirm, int userId)
+    private async Task<LineReplyModel> KillDataAsync(DeleteConfirm deleteConfirm, int userId)
     {
         switch (deleteConfirm.FeatureName)
         {
             case nameof(Models.EF.Accounting):
-                await accountingService.RemoveAccounting(deleteConfirm.FeatureId, userId);
+                await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
-                var monthlyAccountings = await accountingRepository.GetMonthlyAccounting(userId);
+                var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId);
                 var flexMessageModel = new AccountingFlexMessageModel
                 {
                     MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
                     MonthlyIncome = Math.Abs(monthlyAccountings.Where(x => x.Amount < 0).Sum(x => x.Amount)),
                     CreateDate = DateTime.UtcNow.AddHours(8),
                 };
-                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplate(flexMessageModel));
+                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
             case nameof(Models.EF.Memorandum):
                 await memorandumService.RemoveMemo(deleteConfirm.FeatureId, userId);
                 var userMemoes = await memorandumRepository.GetUserMemorandum(userId);
-                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplate(userMemoes));
+                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
             default:
                 return new LineReplyModel(LineReplyEnum.Message, "錯誤的功能");
         }

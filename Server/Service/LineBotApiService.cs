@@ -30,7 +30,7 @@ public class LineBotApiService
     /// <param name="lineEvent"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<LineReplyModel> AnalyzeMessages(Event lineEvent, User user)
+    public async Task<LineReplyModel> AnalyzeMessagesAsync(Event lineEvent, User user)
     {
         var msg = lineEvent.message.text;
 
@@ -43,7 +43,7 @@ public class LineBotApiService
         if (!string.IsNullOrWhiteSpace(msg))
         {
             // 判斷是記帳還是備忘錄
-            EventProcess eventProcess = isAccounting() ? accountingService.Accounting : memorandumService.RecordMemo;
+            EventProcess eventProcess = isAccounting() ? accountingService.AccountingAsync : memorandumService.RecordMemoAsync;
             var result = await eventProcess(msg, user.Id);
             return result;
         }

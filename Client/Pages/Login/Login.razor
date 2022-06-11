@@ -1,0 +1,32 @@
+﻿@page "/Login"
+
+
+@inject LIFFService liff
+@inject AuthService auth
+@inject NavigationManager uriHelper
+@inject IHttpClientFactory clientFactory
+
+<Loading></Loading>
+
+@code {
+    private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
+
+    protected override async Task OnInitializedAsync()
+    {
+        var liffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
+        await liff.InitAsync(liffId);
+
+        if (!await liff.IsLoggedInAsync())
+        {
+            await liff.LoginAsync();
+            return;
+        }
+
+        if (!await auth.LoginAsync())
+        {
+            uriHelper.NavigateTo("Logout", true);
+        }
+
+        uriHelper.NavigateTo("", true);
+    }
+}

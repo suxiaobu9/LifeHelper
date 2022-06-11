@@ -17,7 +17,7 @@ public class FlexTemplate
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public static async Task<string> AccountingFlexMessageWithLastestEventTemplate(AccountingFlexMessageModel model)
+    public static async Task<string> AccountingFlexMessageWithLastestEventTemplateAsync(AccountingFlexMessageModel model)
     {
         using var stream = new StreamReader("json\\AccountingFlexTemplate.json");
         var template = await stream.ReadToEndAsync();
@@ -39,7 +39,7 @@ public class FlexTemplate
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public static async Task<string> AccountingFlexMessageTemplate(AccountingFlexMessageModel model)
+    public static async Task<string> AccountingFlexMessageTemplateAsync(AccountingFlexMessageModel model)
     {
         using var stream = new StreamReader("json\\AccountingFlexTemplate.json");
         var template = await stream.ReadToEndAsync();
@@ -70,7 +70,7 @@ public class FlexTemplate
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public static async Task<string> DeleteComfirmFlexTemplate(string description, FlexDeleteConfirmModel model)
+    public static async Task<string> DeleteComfirmFlexTemplateAsync(string description, FlexDeleteConfirmModel model)
     {
         using var stream = new StreamReader("json\\DeleteComfirmFlexTemplate.json");
         var template = await stream.ReadToEndAsync();
@@ -87,7 +87,7 @@ public class FlexTemplate
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public static async Task<string> MemorandumFlexMessageTemplate(Memorandum[] memoes)
+    public static async Task<string> MemorandumFlexMessageTemplateAsync(Memorandum[] memoes)
     {
         using var templateStream = new StreamReader("json\\MemorandumFlexMessageTemplate.json");
         var template = await templateStream.ReadToEndAsync();

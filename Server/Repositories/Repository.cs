@@ -23,9 +23,9 @@ public class Repository<TEntity> where TEntity : class
         return query;
     }
 
-    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await db.Set<TEntity>().AnyAsync(predicate);
+        return db.Set<TEntity>().AnyAsync(predicate);
     }
 
     public async Task AddAsync(TEntity entity)
@@ -33,9 +33,9 @@ public class Repository<TEntity> where TEntity : class
         await db.Set<TEntity>().AddAsync(entity);
     }
 
-    public async Task AddRangeAsync(IEnumerable<TEntity> entities)
+    public Task AddRangeAsync(IEnumerable<TEntity> entities)
     {
-        await db.Set<TEntity>().AddRangeAsync(entities);
+        return db.Set<TEntity>().AddRangeAsync(entities);
     }
 
     public void Remove(TEntity entity)
@@ -53,9 +53,9 @@ public class Repository<TEntity> where TEntity : class
         return db.Set<TEntity>().FromSqlRaw(sqlQuery);
     }
 
-    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await db.Set<TEntity>().FirstOrDefaultAsync(predicate);
+        return db.Set<TEntity>().FirstOrDefaultAsync(predicate);
     }
 
 }

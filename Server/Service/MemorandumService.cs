@@ -22,13 +22,13 @@ public class MemorandumService
     /// <param name="userId"></param>
     /// <param name="msg"></param>
     /// <returns></returns>
-    public async Task<LineReplyModel> RecordMemo(string msg, int userId)
+    public async Task<LineReplyModel> RecordMemoAsync(string msg, int userId)
     {
-        await AddMemo(msg, userId);
+        await AddMemoAsync(msg, userId);
 
         var userMemoes = await memorandumRepository.GetUserMemorandum(userId);
 
-        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplate(userMemoes));
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class MemorandumService
     /// <param name="userId"></param>
     /// <param name="msg"></param>
     /// <returns></returns>
-    public async Task<Memorandum> AddMemo(string msg, int userId)
+    public async Task<Memorandum> AddMemoAsync(string msg, int userId)
     {
         var memorandum = new Memorandum
         {

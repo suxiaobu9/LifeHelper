@@ -18,11 +18,11 @@ public class AccountingBookController : Controller
     }
 
     [HttpGet("MonthlyAccounting")]
-    public async Task<MonthlyAccountingVm?> MonthlyAccounting()
+    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync()
     {
         if (userProfile == null)
             return null;
 
-        return await accountingService.MonthlyAccounting(userProfile);
+        return await accountingService.MonthlyAccountingAsync(userProfile);
     }
 }
