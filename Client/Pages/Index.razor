@@ -1,12 +1,8 @@
 ﻿@page "/"
 
 @using LifeHelper.Shared.Models.LIFF
-@using LifeHelper.Client.Service
 
-@inject HttpClient httpClient
-@inject LIFFService liff
-@inject AuthService auth
-@inject NavigationManager uriHelper
+@inject IHttpClientFactory clientFactory
 
 <PageTitle>小記帳</PageTitle>
 
@@ -19,6 +15,8 @@
 
 @code {
     private MonthlyAccountingVm? monthlyAccounting;
+
+    private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
 
     protected override async Task OnInitializedAsync()
     {

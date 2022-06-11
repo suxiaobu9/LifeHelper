@@ -15,12 +15,12 @@ public class AuthService
 
     public AuthService(AuthenticationStateProvider authenticationStateProvider,
         LIFFService LIFF,
-        HttpClient httpClient,
+        IHttpClientFactory httpClientFactory,
         ILocalStorageService localStorageService)
     {
         this.authenticationStateProvider = authenticationStateProvider;
         this.LIFF = LIFF;
-        this.httpClient = httpClient;
+        this.httpClient = httpClientFactory.CreateClient(nameof(HttpClient));
         this.localStorageService = localStorageService;
     }
 

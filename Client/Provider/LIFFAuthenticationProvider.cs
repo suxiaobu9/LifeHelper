@@ -1,7 +1,7 @@
-﻿using LifeHelper.Shared.Models.LIFF;
+﻿using Blazored.LocalStorage;
+using LifeHelper.Shared.Models.LIFF;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
-using Blazored.LocalStorage;
 
 namespace LifeHelper.Client.Provider;
 
@@ -12,10 +12,10 @@ public class LIFFAuthenticationProvider : AuthenticationStateProvider
     private readonly HttpClient httpClient;
 
     public LIFFAuthenticationProvider(ILocalStorageService localStorageService,
-        HttpClient httpClient)
+        IHttpClientFactory httpClientFactory)
     {
         this.localStorageService = localStorageService;
-        this.httpClient = httpClient;
+        this.httpClient = httpClientFactory.CreateClient(nameof(HttpClient));
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -38,8 +38,6 @@ public class LIFFAuthenticationProvider : AuthenticationStateProvider
                     new Claim(ClaimTypes.Name, userProfile.Name),
                 }, "Liff Authentication");
             ClaimsPrincipal = new ClaimsPrincipal(identity);
-
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {userProfile.IdToken}");
         }
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
