@@ -11,14 +11,14 @@ public class UserRepository : Repository<User>
     /// </summary>
     /// <param name="userLineIds"></param>
     /// <returns></returns>
-    public async Task<User[]> GetUsers(string[] userLineIds)
+    public Task<User[]> GetUsersAsync(string[] userLineIds)
     {
-        return await Where(x => userLineIds.Contains(x.LineUserId)).ToArrayAsync();
+        return Where(x => userLineIds.Contains(x.LineUserId)).ToArrayAsync();
     }
 
-    public async Task<User?> GetUser(string userLineId)
+    public Task<User?> GetUserAsync(string userLineId)
     {
-        return await FirstOrDefaultAsync(x => x.LineUserId == userLineId);
+        return FirstOrDefaultAsync(x => x.LineUserId == userLineId);
     }
 
 }

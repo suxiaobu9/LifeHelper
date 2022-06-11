@@ -18,9 +18,9 @@ public class UserService
     /// </summary>
     /// <param name="userLineIds"></param>
     /// <returns></returns>
-    public async Task<User[]> GetUsers(string[] userLineIds)
+    public Task<User[]> GetUsersAsync(string[] userLineIds)
     {
-        return await userRepository.GetUsers(userLineIds);
+        return userRepository.GetUsersAsync(userLineIds);
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class UserService
     /// </summary>
     /// <param name="userLineId"></param>
     /// <returns></returns>
-    public async Task<User> AddUser(string userLineId)
+    public async Task<User> AddUserAsync(string userLineId)
     {
         var user = new User
         {
@@ -48,9 +48,9 @@ public class UserService
     /// Upsert 目前使用者 並回傳
     /// </summary>
     /// <returns></returns>
-    public async Task<User?> UpsertUser(UserProfile userProfile)
+    public async Task<User?> UpsertUserAsync(UserProfile userProfile)
     {
-        var user = await userRepository.GetUser(userProfile.UserLineId);
+        var user = await userRepository.GetUserAsync(userProfile.UserLineId);
 
         if (user == null)
         {

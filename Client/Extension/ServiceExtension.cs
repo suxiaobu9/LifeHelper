@@ -1,4 +1,5 @@
-﻿using LifeHelper.Client.Provider;
+﻿using Blazored.LocalStorage;
+using LifeHelper.Client.Provider;
 using LifeHelper.Client.Service;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -12,6 +13,9 @@ public static class ServiceExtension
         services.AddScoped<AuthService>();
 
         services.AddScoped<AuthenticationStateProvider, LIFFAuthenticationProvider>();
+        
         services.AddAuthorizationCore();
+
+        services.AddBlazoredLocalStorage();
     }
 }

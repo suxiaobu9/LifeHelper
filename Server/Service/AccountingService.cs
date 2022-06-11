@@ -27,17 +27,17 @@ public class AccountingService
     /// 取得月份帳務資料
     /// </summary>
     /// <returns></returns>
-    public async Task<MonthlyAccountingVm?> MonthlyAccounting(UserProfile userProfile)
+    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(UserProfile userProfile)
     {
 
-        var user = await userService.UpsertUser(userProfile);
+        var user = await userService.UpsertUserAsync(userProfile);
 
         if (user == null)
             return null;
 
         var twNow = DateTime.UtcNow.AddHours(8);
 
-        var tmp = await accountingRepository.GetMonthlyAccounting(user.Id, twNow);
+        var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, twNow);
 
         var result = new MonthlyAccountingVm
         {
@@ -61,7 +61,7 @@ public class AccountingService
     /// <param name="userId"></param>
     /// <param name="eventName"></param>
     /// <returns></returns>
-    public async Task<Accounting> AddAccounting(int amount, int userId, string eventName)
+    public async Task<Accounting> AddAccountingAsync(int amount, int userId, string eventName)
     {
         var utcNow = DateTime.UtcNow;
 
@@ -85,7 +85,7 @@ public class AccountingService
     /// <param name="lineEvent"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<LineReplyModel> Accounting(string sourceMsg, int userId)
+    public async Task<LineReplyModel> AccountingAsync(string sourceMsg, int userId)
     {
         sourceMsg = sourceMsg.Replace(Environment.NewLine, "");
 
@@ -104,10 +104,10 @@ public class AccountingService
             eventName = "其他";
 
         // 記帳
-        var accounting = await AddAccounting(amount, userId, eventName);
+        var accounting = await AddAccountingAsync(amount, userId, eventName);
 
         // 取得月帳務
-        var monthlyAccountings = await accountingRepository.GetMonthlyAccounting(userId);
+        var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId);
 
         var flexMessageModel = new AccountingFlexMessageModel
         {
@@ -119,14 +119,14 @@ public class AccountingService
             DeleteConfirm = new FlexDeleteConfirmModel(null, nameof(Models.EF.Accounting), accounting.Id)
         };
 
-        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageWithLastestEventTemplate(flexMessageModel));
+        return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageWithLastestEventTemplateAsync(flexMessageModel));
     }
 
     /// <summary>
     /// 刪除記帳
     /// </summary>
     /// <returns></returns>
-    public async Task RemoveAccounting(int accountingId, int userId)
+    public async Task RemoveAccountingAsync(int accountingId, int userId)
     {
         var accounting = await accountingRepository.GetAccounting(accountingId, userId);
         if (accounting == null)

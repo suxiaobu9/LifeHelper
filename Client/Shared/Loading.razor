@@ -1,9 +1,30 @@
-﻿<div class="loader-container">
-    <div class="loader-spinner">
-        <svg viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
-            <circle class="load one" cx="60" cy="60" r="20" pathLength="1" />
-            <circle class="load two" cx="60" cy="60" r="10" />
-            <circle class="load three" cx="60" cy="60" r="30" pathLength="1" />
-        </svg>
+﻿@inject IJSRuntime js;
+
+@if (!IsLoading)
+    return;
+<div class="overflow-hidden"></div>
+<div class="bg-white/75 w-screen h-screen top-0 left-0 absolute">
+    <div class="absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]">
+        <div class="loader-spinner">
+            <svg viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <circle class="load one" cx="60" cy="60" r="20" pathLength="1" />
+                <circle class="load two" cx="60" cy="60" r="10" />
+                <circle class="load three" cx="60" cy="60" r="30" pathLength="1" />
+            </svg>
+        </div>
     </div>
 </div>
+
+@code {
+    [Parameter]
+    public bool IsLoading { get; set; } = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var param = new { isLoading = IsLoading };
+
+        await js.InvokeVoidAsync("pageLoading", param);
+
+        await base.OnParametersSetAsync();
+    }
+}

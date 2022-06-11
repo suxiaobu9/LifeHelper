@@ -11,13 +11,13 @@ public class UnitOfWork
         this.db = db;
     }
 
-    public async Task CompleteAsync()
+    public Task CompleteAsync()
     {
-        await db.SaveChangesAsync();
+        return db.SaveChangesAsync();
     }
 
-    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    public Task<IDbContextTransaction> BeginTransactionAsync()
     {
-        return await db.Database.BeginTransactionAsync();
+        return db.Database.BeginTransactionAsync();
     }
 }

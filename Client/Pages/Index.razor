@@ -6,53 +6,22 @@
 @inject HttpClient httpClient
 @inject LIFFService liff
 @inject AuthService auth
-@inject NavigationManager uriHelper;
+@inject NavigationManager uriHelper
 
 <PageTitle>小記帳</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        @if (monthlyAccounting != null)
-        {
-            <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
-        }
-        else
-        {
-            <Loading></Loading>
-        }
+<Loading IsLoading="@(monthlyAccounting==null)"></Loading>
 
-    </Authorized>
-    <NotAuthorized>
-        <Loading></Loading>
-    </NotAuthorized>
-</AuthorizeView>
-
-
+@if (monthlyAccounting != null)
+{
+    <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
+}
 
 @code {
     private MonthlyAccountingVm? monthlyAccounting;
 
-
     protected override async Task OnInitializedAsync()
     {
-        var LiffId = await httpClient.GetStringAsync("LIFF/GetLIFFId");
-
-        await liff.InitAsync(LiffId);
-
-        if (!await liff.IsLoggedInAsync())
-        {
-            await liff.LoginAsync();
-            return;
-        }
-
-        if (!await auth.Login())
-        {
-            await liff.LogoutAsync();
-            auth.Logout();
-            uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
-            return;
-        }
-
         var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
 
         monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();

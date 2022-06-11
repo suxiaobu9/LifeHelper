@@ -11,7 +11,7 @@ public class LIFFMiddleware
     // IMessageWriter is injected into InvokeAsync
     public async Task InvokeAsync(HttpContext httpContext, UserProfileService userProfile)
     {
-        await userProfile.SetUserProfile(httpContext);
+        await userProfile.SetUserProfileAsync(httpContext);
         await _next(httpContext);
     }
 }

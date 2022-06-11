@@ -1,4 +1,5 @@
-﻿using LifeHelper.Client.Provider;
+﻿using Blazored.LocalStorage;
+using LifeHelper.Client.Provider;
 using LifeHelper.Shared.Models.LIFF;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Text.Json;
@@ -9,22 +10,25 @@ public class AuthService
 {
     private readonly AuthenticationStateProvider authenticationStateProvider;
     private readonly LIFFService LIFF;
-    private HttpClient httpClient;
+    private readonly HttpClient httpClient;
+    private readonly ILocalStorageService localStorageService;
 
     public AuthService(AuthenticationStateProvider authenticationStateProvider,
         LIFFService LIFF,
-        HttpClient httpClient)
+        HttpClient httpClient,
+        ILocalStorageService localStorageService)
     {
         this.authenticationStateProvider = authenticationStateProvider;
         this.LIFF = LIFF;
         this.httpClient = httpClient;
+        this.localStorageService = localStorageService;
     }
 
     /// <summary>
     /// 登入
     /// </summary>
     /// <returns></returns>
-    public async Task<bool> Login()
+    public async Task<bool> LoginAsync()
     {
         var idToken = await LIFF.GetIDTokenAsync();
         var dic = new Dictionary<string, string>
@@ -43,9 +47,8 @@ public class AuthService
             if (userProfile == null)
                 return false;
 
-            ((LIFFAuthenticationProvider)authenticationStateProvider).LoginNotify(userProfile);
+            await localStorageService.SetItemAsync(nameof(UserProfile), userProfile);
 
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {idToken}");
         }
         catch (Exception ex)
         {
@@ -59,9 +62,13 @@ public class AuthService
     /// 登出
     /// </summary>
     /// <returns></returns>
-    public bool Logout()
+    public async Task<bool> LogoutAsync()
     {
         ((LIFFAuthenticationProvider)authenticationStateProvider).LogoutNotify();
+
+        if (await localStorageService.ContainKeyAsync(nameof(UserProfile)))
+            await localStorageService.RemoveItemAsync(nameof(UserProfile));
+
         return true;
     }
 }

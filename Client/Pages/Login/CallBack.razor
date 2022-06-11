@@ -1,0 +1,27 @@
+﻿@page "/CallBack"
+
+@inject NavigationManager uriHelper
+
+@code {
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "code")]
+    public string Code { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "state")]
+    public string State { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "liffClientId")]
+    public string LiffClientId { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "liffRedirectUri")]
+    public string LiffRedirectUri { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        uriHelper.NavigateTo("Login", true);
+    }
+}

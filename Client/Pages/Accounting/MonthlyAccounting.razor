@@ -1,0 +1,18 @@
+﻿@using LifeHelper.Shared.Models.LIFF
+
+@if (model == null)
+    return;
+
+<IncomeDetail Income="@model.Income" TotalIncome="@model.TotalIncome"></IncomeDetail>
+
+<OutlayReport OutlayReportModel="@model.ReportDetails" TotalOutlay="@model.TotalOutlay"></OutlayReport>
+
+<OutlayDetail Outlay="@model.Outlay"></OutlayDetail>
+
+
+@code {
+
+    [Parameter]
+    public MonthlyAccountingVm? model { get; set; }
+
+}
