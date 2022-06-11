@@ -9,17 +9,17 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 
 
-<link href="css/tailwind/tailwind.css?v=@DateTime.UtcNow.Ticks" rel="stylesheet" />
+@*<link href="css/tailwind/tailwind.css?v=@DateTime.UtcNow.Ticks" rel="stylesheet" />*@
 
 <AuthorizeView>
     <Authorized>
-        <div>
+      @*  <div>
             <div class="bg-red-100 p-5">
                 <div class="bg-yellow-100">
                     123
                 </div>
             </div>
-        </div>
+        </div>*@
     </Authorized>
     <NotAuthorized>
     </NotAuthorized>
@@ -48,7 +48,7 @@
 
         if (!await localStorageService.ContainKeyAsync(nameof(UserProfile)) && !isLogin)
         {
-            uriHelper.NavigateTo($"Login");
+            uriHelper.NavigateTo($"Login", true);
             return;
         }
 
