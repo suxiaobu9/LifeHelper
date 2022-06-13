@@ -27,7 +27,7 @@ public class AccountingService
     /// 取得月份帳務資料
     /// </summary>
     /// <returns></returns>
-    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(UserProfile userProfile)
+    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(UserProfile userProfile, DateTime? utcDate)
     {
 
         var user = await userService.UpsertUserAsync(userProfile);
@@ -35,13 +35,15 @@ public class AccountingService
         if (user == null)
             return null;
 
-        var twNow = DateTime.UtcNow.AddHours(8);
+        var twDate = utcDate ?? DateTime.UtcNow.AddHours(8);
 
-        var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, twNow);
+        var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, twDate);
 
         var result = new MonthlyAccountingVm
         {
-            Month = twNow.Month,
+            PreAccountingPeriod = await accountingRepository.GetPreAccouningDateAsync(user.Id, twDate),
+            AccountingPeriod = twDate,
+            NextAccountingPeriod = await accountingRepository.GetNextAccountingDateAsync(user.Id, twDate),
             Income = tmp.Where(x => x.Amount < 0)
                         .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),
@@ -107,7 +109,7 @@ public class AccountingService
         var accounting = await AddAccountingAsync(amount, userId, eventName);
 
         // 取得月帳務
-        var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId);
+        var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId, DateTime.UtcNow);
 
         var flexMessageModel = new AccountingFlexMessageModel
         {
@@ -128,7 +130,7 @@ public class AccountingService
     /// <returns></returns>
     public async Task RemoveAccountingAsync(int accountingId, int userId)
     {
-        var accounting = await accountingRepository.GetAccounting(accountingId, userId);
+        var accounting = await accountingRepository.GetAccountingAsync(accountingId, userId);
         if (accounting == null)
             return;
         accountingRepository.Remove(accounting);

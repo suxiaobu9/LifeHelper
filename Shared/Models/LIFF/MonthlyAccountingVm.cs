@@ -3,9 +3,19 @@
 public class MonthlyAccountingVm
 {
     /// <summary>
-    /// 月份
+    /// 上一個記帳月
     /// </summary>
-    public int Month { get; set; }
+    public DateTime? PreAccountingPeriod { get; set; }
+
+    /// <summary>
+    /// 記帳月
+    /// </summary>
+    public DateTime AccountingPeriod { get; set; }
+
+    /// <summary>
+    /// 下一個記帳月
+    /// </summary>
+    public DateTime? NextAccountingPeriod { get; set; }
 
     /// <summary>
     /// 收入

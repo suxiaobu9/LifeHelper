@@ -118,7 +118,7 @@ public class DeleteConfirmService
         switch (featureName)
         {
             case nameof(Models.EF.Accounting):
-                var accounting = await accountingRepository.GetAccounting(featureId, user.Id);
+                var accounting = await accountingRepository.GetAccountingAsync(featureId, user.Id);
                 if (accounting == null)
                     return null;
                 description = accounting.Event;
@@ -169,7 +169,7 @@ public class DeleteConfirmService
             case nameof(Models.EF.Accounting):
                 await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
-                var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId);
+                var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId, DateTime.UtcNow);
                 var flexMessageModel = new AccountingFlexMessageModel
                 {
                     MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),

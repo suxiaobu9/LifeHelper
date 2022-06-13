@@ -6,25 +6,12 @@
 
 <PageTitle>小記帳</PageTitle>
 
-<Loading IsLoading="@(monthlyAccounting==null)"></Loading>
+<div class="p-3 bg-white shadow-lg rounded-xl">
 
-@if (monthlyAccounting != null)
-{
-    <MonthlyAccounting model="@monthlyAccounting"></MonthlyAccounting>
-}
+    <MonthlyAccounting></MonthlyAccounting>
+
+</div>
 
 @code {
-    private MonthlyAccountingVm? monthlyAccounting;
 
-    private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
-
-    protected override async Task OnInitializedAsync()
-    {
-        var repMsg = await httpClient.GetAsync("AccountingBook/MonthlyAccounting");
-
-        monthlyAccounting = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
-
-        await base.OnInitializedAsync();
-
-    }
 }
