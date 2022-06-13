@@ -1,18 +1,64 @@
 ﻿@using LifeHelper.Shared.Models.LIFF
 
-@if (model == null)
-    return;
+@inject IHttpClientFactory clientFactory
 
-<IncomeDetail Income="@model.Income" TotalIncome="@model.TotalIncome"></IncomeDetail>
+<Loading IsLoading="@(model == null || isLoading)"></Loading>
 
-<OutlayReport OutlayReportModel="@model.ReportDetails" TotalOutlay="@model.TotalOutlay"></OutlayReport>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 
-<OutlayDetail Outlay="@model.Outlay"></OutlayDetail>
+@if (model != null)
+{
+    <div class="flex flex-row justify-between">
+        <label @onclick="()=>QueryAccountingAsync(model.PreAccountingPeriod)" class="pl-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.PreAccountingPeriod != null ? "arrow_back_ios" : "")
+        </label>
+        <label class="font-bold text-red-800 text-3xl font-bold">
+            @CurrentDate.ToString("yyyy 年 MM 月")
+        </label>
+        <label @onclick="()=>QueryAccountingAsync(model.NextAccountingPeriod)" class="pr-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.NextAccountingPeriod != null ? "arrow_forward_ios" : "")
+        </label>
+    </div>
 
+    <IncomeDetail Income="@model.Income" TotalIncome="@model.TotalIncome"></IncomeDetail>
+
+    <OutlayReport OutlayReportModel="@model.ReportDetails" TotalOutlay="@model.TotalOutlay"></OutlayReport>
+
+    <OutlayDetail Outlay="@model.Outlay"></OutlayDetail>
+
+}
 
 @code {
+    public MonthlyAccountingVm? model { get; set; } = null;
 
-    [Parameter]
-    public MonthlyAccountingVm? model { get; set; }
+    private bool isLoading { get; set; }
+
+    private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
+
+    private DateTime CurrentDate { get; set; } = DateTime.UtcNow.AddHours(8);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await QueryAccountingAsync(CurrentDate);
+    }
+
+    private async Task QueryAccountingAsync(DateTime? date)
+    {
+        isLoading = date != null;
+
+        if (date == null)
+            return;
+
+        var repMsg = await httpClient.GetAsync($"AccountingBook/MonthlyAccounting/{date.Value.Ticks}");
+
+        model = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
+
+        isLoading = false;
+
+        if (model == null)
+            return;
+
+        CurrentDate = model.AccountingPeriod;
+    }
 
 }

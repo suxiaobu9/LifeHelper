@@ -9,24 +9,20 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 
 
-@*<link href="css/tailwind/tailwind.css?v=@DateTime.UtcNow.Ticks" rel="stylesheet" />*@
-
 <AuthorizeView>
     <Authorized>
-      @*  <div>
-            <div class="bg-red-100 p-5">
-                <div class="bg-yellow-100">
-                    123
-                </div>
+        <div class="p-5 pb-0">
+            <div class="fixed">
+                <img class="rounded-[50%] w-12 shadow-lg md:w-16" src="@userProfile?.Picture" />
             </div>
-        </div>*@
+        </div>
     </Authorized>
     <NotAuthorized>
     </NotAuthorized>
 </AuthorizeView>
 
-<main>
-    <div class="flex flex-row justify-center mt-6 font-mono">
+<main class="pb-10">
+    <div class="flex flex-row justify-center font-mono">
         <div class="md:w-8/12 w-11/12 text-center text-xl">
             @if (IsShowBody)
             {
@@ -39,6 +35,7 @@
 @code {
 
     private bool IsShowBody { get; set; }
+    private UserProfile? userProfile { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,6 +48,8 @@
             uriHelper.NavigateTo($"Login", true);
             return;
         }
+
+        userProfile = await localStorageService.GetItemAsync<UserProfile>(nameof(UserProfile));
 
         await ((LIFFAuthenticationProvider)authenticationStateProvider).LoginNotifyAsync();
 

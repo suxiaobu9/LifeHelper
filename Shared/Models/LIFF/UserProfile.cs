@@ -12,4 +12,8 @@ public class UserProfile
 
     [JsonPropertyName("name")]
     public string Name { get; set; } = null!;
+
+
+    [JsonPropertyName(name: "picture")]
+    public string Picture { get; set; } = null!;
 }

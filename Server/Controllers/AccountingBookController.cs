@@ -17,12 +17,14 @@ public class AccountingBookController : Controller
         this.userProfile = userProfileService.UserProfile;
     }
 
-    [HttpGet("MonthlyAccounting")]
-    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync()
+    [HttpGet("MonthlyAccounting/{dateTicks:long}")]
+    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(long dateTicks)
     {
         if (userProfile == null)
             return null;
 
-        return await accountingService.MonthlyAccountingAsync(userProfile);
+        var utcDate = new DateTime(dateTicks);
+
+        return await accountingService.MonthlyAccountingAsync(userProfile, utcDate);
     }
 }
