@@ -35,15 +35,15 @@ public class AccountingService
         if (user == null)
             return null;
 
-        var twDate = utcDate ?? DateTime.UtcNow.AddHours(8);
+        utcDate ??= DateTime.UtcNow;
 
-        var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, twDate);
+        var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, utcDate.Value);
 
         var result = new MonthlyAccountingVm
         {
-            PreAccountingPeriod = await accountingRepository.GetPreAccouningDateAsync(user.Id, twDate),
-            AccountingPeriod = twDate,
-            NextAccountingPeriod = await accountingRepository.GetNextAccountingDateAsync(user.Id, twDate),
+            PreAccountingPeriod = (await accountingRepository.GetPreAccouningDateAsync(user.Id, utcDate.Value))?.AddHours(8),
+            AccountingPeriod = utcDate.Value.AddHours(8),
+            NextAccountingPeriod = (await accountingRepository.GetNextAccountingDateAsync(user.Id, utcDate.Value))?.AddHours(8),
             Income = tmp.Where(x => x.Amount < 0)
                         .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),

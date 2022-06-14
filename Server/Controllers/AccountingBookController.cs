@@ -23,7 +23,7 @@ public class AccountingBookController : Controller
         if (userProfile == null)
             return null;
 
-        var utcDate = new DateTime(dateTicks);
+        var utcDate = new DateTime(dateTicks).ToUniversalTime();
 
         return await accountingService.MonthlyAccountingAsync(userProfile, utcDate);
     }
