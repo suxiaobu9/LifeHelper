@@ -5,17 +5,17 @@ public class MonthlyAccountingVm
     /// <summary>
     /// 上一個記帳月
     /// </summary>
-    public DateTime? PreAccountingPeriod { get; set; }
+    public DateTime? PreAccountingPeriodUtc { get; set; }
 
     /// <summary>
     /// 記帳月
     /// </summary>
-    public DateTime AccountingPeriod { get; set; }
+    public DateTime AccountingPeriodUtc { get; set; }
 
     /// <summary>
     /// 下一個記帳月
     /// </summary>
-    public DateTime? NextAccountingPeriod { get; set; }
+    public DateTime? NextAccountingPeriodUtc { get; set; }
 
     /// <summary>
     /// 收入

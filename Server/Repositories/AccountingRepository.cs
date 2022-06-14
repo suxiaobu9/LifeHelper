@@ -52,7 +52,7 @@ public class AccountingRepository : Repository<Accounting>
     /// <param name="userId"></param>
     /// <param name="utcDate"></param>
     /// <returns></returns>
-    public async Task<DateTime?> GetPreAccouningDateAsync(int userId, DateTime utcDate)
+    public async Task<DateTime?> GetPreAccouningUtcDateAsync(int userId, DateTime utcDate)
     {
         var twDate = utcDate.AddHours(8);
         var maxDate = new DateTime(twDate.Year, twDate.Month, 1).ToUniversalTime();
@@ -71,7 +71,7 @@ public class AccountingRepository : Repository<Accounting>
     /// <param name="userId"></param>
     /// <param name="utcDate"></param>
     /// <returns></returns>
-    public async Task<DateTime?> GetNextAccountingDateAsync(int userId, DateTime utcDate)
+    public async Task<DateTime?> GetNextAccountingUtcDateAsync(int userId, DateTime utcDate)
     {
         var twDate = utcDate.AddHours(8).AddMonths(1);
         var minDate = new DateTime(twDate.Year, twDate.Month, 1).AddMilliseconds(-1).ToUniversalTime();

@@ -9,14 +9,14 @@
 @if (model != null)
 {
     <div class="flex flex-row justify-between">
-        <label @onclick="()=>QueryAccountingAsync(model.PreAccountingPeriod)" class="pl-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
-            @(model.PreAccountingPeriod != null ? "arrow_back_ios" : "")
+        <label @onclick="()=>QueryAccountingAsync(model.PreAccountingPeriodUtc)" class="pl-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.PreAccountingPeriodUtc != null ? "arrow_back_ios" : "")
         </label>
         <label class="font-bold text-red-800 text-3xl font-bold">
-            @CurrentDate.ToString("yyyy 年 MM 月")
+            @CurrentUtcDate.AddHours(8).ToString("yyyy 年 MM 月")
         </label>
-        <label @onclick="()=>QueryAccountingAsync(model.NextAccountingPeriod)" class="pr-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
-            @(model.NextAccountingPeriod != null ? "arrow_forward_ios" : "")
+        <label @onclick="()=>QueryAccountingAsync(model.NextAccountingPeriodUtc)" class="pr-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.NextAccountingPeriodUtc != null ? "arrow_forward_ios" : "")
         </label>
     </div>
 
@@ -35,11 +35,11 @@
 
     private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
 
-    private DateTime CurrentDate { get; set; } = DateTime.UtcNow.AddHours(8);
+    private DateTime CurrentUtcDate { get; set; } = DateTime.UtcNow;
 
     protected override async Task OnInitializedAsync()
     {
-        await QueryAccountingAsync(CurrentDate);
+        await QueryAccountingAsync(CurrentUtcDate);
     }
 
     private async Task QueryAccountingAsync(DateTime? date)
@@ -58,7 +58,7 @@
         if (model == null)
             return;
 
-        CurrentDate = model.AccountingPeriod;
+        CurrentUtcDate = model.AccountingPeriodUtc;
     }
 
 }
