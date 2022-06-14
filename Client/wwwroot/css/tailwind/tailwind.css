@@ -492,6 +492,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   left: 50%;
 }
 
+.top-10 {
+  top: 2.5rem;
+}
+
+.top-16 {
+  top: 4rem;
+}
+
 .mt-10 {
   margin-top: 2.5rem;
 }
@@ -681,10 +689,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .pr-3 {
   padding-right: 0.75rem;
-}
-
-.pt-10 {
-  padding-top: 2.5rem;
 }
 
 .text-center {
