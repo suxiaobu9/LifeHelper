@@ -5,6 +5,7 @@ using LifeHelper.Shared.Const;
 using LifeHelper.Shared.Enum;
 using LifeHelper.Shared.Models.LIFF;
 using System.Text.RegularExpressions;
+using static LifeHelper.Shared.Models.LIFF.MonthlyAccountingVm;
 
 namespace LifeHelper.Server.Service;
 
@@ -29,7 +30,6 @@ public class AccountingService
     /// <returns></returns>
     public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(UserProfile userProfile, DateTime? utcDate)
     {
-
         var user = await userService.UpsertUserAsync(userProfile);
 
         if (user == null)
@@ -39,17 +39,23 @@ public class AccountingService
 
         var tmp = await accountingRepository.GetMonthlyAccountingAsync(user.Id, utcDate.Value);
 
+        var pre = (await accountingRepository.GetPreAccouningUtcDateAsync(user.Id, utcDate.Value))?.AddHours(8);
+
+        var next = (await accountingRepository.GetNextAccountingUtcDateAsync(user.Id, utcDate.Value))?.AddHours(8);
+
+        var twDate = utcDate.Value.AddHours(8);
+
         var result = new MonthlyAccountingVm
         {
-            PreAccountingPeriodUtc = await accountingRepository.GetPreAccouningUtcDateAsync(user.Id, utcDate.Value),
-            AccountingPeriodUtc = utcDate.Value,
-            NextAccountingPeriodUtc = await accountingRepository.GetNextAccountingUtcDateAsync(user.Id, utcDate.Value),
+            CurrentAccountingMonth = new AccountingMonth(twDate.Year, twDate.Month),
+            PreAccountingMonth = pre == null ? null : new AccountingMonth(pre.Value.Year, pre.Value.Month),
+            NextAccountingMonth = next == null ? null : new AccountingMonth(next.Value.Year, next.Value.Month),
             Income = tmp.Where(x => x.Amount < 0)
-                        .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
+                        .Select(x => new EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),
             Outlay = tmp.Where(x => x.Amount > 0)
                         .OrderByDescending(x => x.AccountDate)
-                        .Select(x => new MonthlyAccountingVm.EventDetail(x.AccountDate, x.Event, x.Amount))
+                        .Select(x => new EventDetail(x.AccountDate, x.Event, x.Amount))
                         .ToArray(),
         };
 
