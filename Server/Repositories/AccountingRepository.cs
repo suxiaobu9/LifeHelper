@@ -36,11 +36,11 @@ public class AccountingRepository : Repository<Accounting>
     public Task<Accounting[]> GetMonthlyAccountingAsync(int userId, DateTime utcDate)
     {
         var twDate = utcDate.AddHours(8);
-        var start = new DateTime(twDate.Year, twDate.Month, 1).ToUniversalTime();
+        var start = new DateTime(twDate.Year, twDate.Month, 1).AddHours(-8);
 
         twDate = twDate.AddMonths(1);
 
-        var end = new DateTime(twDate.Year, twDate.Month, 1).AddMilliseconds(-1).ToUniversalTime();
+        var end = new DateTime(twDate.Year, twDate.Month, 1).AddMilliseconds(-1).AddHours(-8);
 
         return Where(x => start <= x.AccountDate && x.AccountDate <= end && x.UserId == userId)
                         .AsNoTracking().ToArrayAsync();
@@ -55,7 +55,7 @@ public class AccountingRepository : Repository<Accounting>
     public async Task<DateTime?> GetPreAccouningUtcDateAsync(int userId, DateTime utcDate)
     {
         var twDate = utcDate.AddHours(8);
-        var maxDate = new DateTime(twDate.Year, twDate.Month, 1).ToUniversalTime();
+        var maxDate = new DateTime(twDate.Year, twDate.Month, 1).AddHours(-8);
 
         var data = await Where(x => x.AccountDate < maxDate && x.UserId == userId)
             .OrderByDescending(x => x.AccountDate)
@@ -74,7 +74,7 @@ public class AccountingRepository : Repository<Accounting>
     public async Task<DateTime?> GetNextAccountingUtcDateAsync(int userId, DateTime utcDate)
     {
         var twDate = utcDate.AddHours(8).AddMonths(1);
-        var minDate = new DateTime(twDate.Year, twDate.Month, 1).AddMilliseconds(-1).ToUniversalTime();
+        var minDate = new DateTime(twDate.Year, twDate.Month, 1).AddMilliseconds(-1).AddHours(-8);
 
         var data = await Where(x => x.AccountDate > minDate && x.UserId == userId)
             .OrderBy(x => x.AccountDate)
