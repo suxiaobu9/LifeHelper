@@ -9,14 +9,14 @@
 @if (model != null)
 {
     <div class="flex flex-row justify-between">
-        <label @onclick="()=>QueryAccountingAsync(model.PreAccountingPeriodUtc)" class="pl-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
-            @(model.PreAccountingPeriodUtc != null ? "arrow_back_ios" : "")
+        <label @onclick="()=>QueryAccountingAsync(model.PreAccountingMonth)" class="pl-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.PreAccountingMonth != null ? "arrow_back_ios" : "")
         </label>
         <label class="font-bold text-red-800 text-3xl font-bold">
-            @CurrentUtcDate.AddHours(8).ToString("yyyy 年 MM 月")
+            @CurrentDate.Year 年 @CurrentDate.Month 月
         </label>
-        <label @onclick="()=>QueryAccountingAsync(model.NextAccountingPeriodUtc)" class="pr-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
-            @(model.NextAccountingPeriodUtc != null ? "arrow_forward_ios" : "")
+        <label @onclick="()=>QueryAccountingAsync(model.NextAccountingMonth)" class="pr-3 cursor-pointer material-symbols-outlined text-3xl text-red-800">
+            @(model.NextAccountingMonth != null ? "arrow_forward_ios" : "")
         </label>
     </div>
 
@@ -35,21 +35,21 @@
 
     private HttpClient httpClient => clientFactory.CreateClient(nameof(HttpClient));
 
-    private DateTime CurrentUtcDate { get; set; } = DateTime.UtcNow;
+    private MonthlyAccountingVm.AccountingMonth CurrentDate { get; set; } = new(DateTime.UtcNow.AddHours(8).Year, DateTime.UtcNow.AddHours(8).Month);
 
     protected override async Task OnInitializedAsync()
     {
-        await QueryAccountingAsync(CurrentUtcDate);
+        await QueryAccountingAsync(CurrentDate);
     }
 
-    private async Task QueryAccountingAsync(DateTime? date)
+    private async Task QueryAccountingAsync(MonthlyAccountingVm.AccountingMonth? date)
     {
         isLoading = date != null;
 
         if (date == null)
             return;
 
-        var repMsg = await httpClient.GetAsync($"AccountingBook/MonthlyAccounting/{date.Value.Ticks}");
+        var repMsg = await httpClient.GetAsync($"AccountingBook/MonthlyAccounting/{date.Year}/{date.Month}");
 
         model = await repMsg.Content.ReadFromJsonAsync<MonthlyAccountingVm?>();
 
@@ -58,7 +58,9 @@
         if (model == null)
             return;
 
-        CurrentUtcDate = model.AccountingPeriodUtc;
+        Console.WriteLine(model);
+
+        CurrentDate = model.CurrentAccountingMonth;
     }
 
 }

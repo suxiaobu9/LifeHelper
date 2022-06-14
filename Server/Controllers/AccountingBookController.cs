@@ -17,13 +17,13 @@ public class AccountingBookController : Controller
         this.userProfile = userProfileService.UserProfile;
     }
 
-    [HttpGet("MonthlyAccounting/{dateTicks:long}")]
-    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(long dateTicks)
+    [HttpGet("MonthlyAccounting/{year:int}/{month:int}")]
+    public async Task<MonthlyAccountingVm?> MonthlyAccountingAsync(int year, int month)
     {
         if (userProfile == null)
             return null;
 
-        var utcDate = new DateTime(dateTicks);
+        var utcDate = new DateTime(year, month, 1).ToUniversalTime();
 
         return await accountingService.MonthlyAccountingAsync(userProfile, utcDate);
     }
