@@ -169,17 +169,11 @@ public class DeleteConfirmService
             case nameof(Models.EF.Accounting):
                 await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
-                var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId, DateTime.UtcNow);
-                var flexMessageModel = new AccountingFlexMessageModel
-                {
-                    MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
-                    MonthlyIncome = Math.Abs(monthlyAccountings.Where(x => x.Amount < 0).Sum(x => x.Amount)),
-                    CreateDate = DateTime.UtcNow.AddHours(8),
-                };
+                var flexMessageModel = await accountingService.GetMonthlyAccountingAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
             case nameof(Models.EF.Memorandum):
-                await memorandumService.RemoveMemo(deleteConfirm.FeatureId, userId);
-                var userMemoes = await memorandumRepository.GetUserMemorandum(userId);
+                await memorandumService.RemoveMemoAsync(deleteConfirm.FeatureId, userId);
+                var userMemoes = await memorandumService.GetUserMemorandumAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
             default:
                 return new LineReplyModel(LineReplyEnum.Message, "錯誤的功能");
