@@ -1,12 +1,6 @@
 ﻿using isRock.LineBot;
-using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
-using LifeHelper.Server.Models.Template;
-using LifeHelper.Shared.Const;
 using LifeHelper.Shared.Enum;
-using LifeHelper.Shared.Utility;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace LifeHelper.Server.Service;
 
@@ -34,16 +28,10 @@ public class LineBotApiService
     {
         var msg = lineEvent.message.text;
 
-        var isAccounting = new Func<bool>(() =>
-        {
-            var regexMatch = Regex.Match(msg, RegexConst.IntRegex);
-            return regexMatch.Success && (msg.StartsWith(regexMatch.Value) || msg.EndsWith(regexMatch.Value));
-        });
-
         if (!string.IsNullOrWhiteSpace(msg))
         {
             // 判斷是記帳還是備忘錄
-            EventProcess eventProcess = isAccounting() ? accountingService.AccountingAsync : memorandumService.RecordMemoAsync;
+            EventProcess eventProcess = StringExtension.IsAccounting(msg) ? accountingService.AccountingAsync : memorandumService.RecordMemoAsync;
             var result = await eventProcess(msg, user.Id);
             return result;
         }

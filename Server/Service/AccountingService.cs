@@ -95,18 +95,18 @@ public class AccountingService
     /// <returns></returns>
     public async Task<LineReplyModel> AccountingAsync(string sourceMsg, int userId)
     {
-        sourceMsg = sourceMsg.Replace(Environment.NewLine, "");
+        sourceMsg = sourceMsg.Replace(Environment.NewLine, "").Replace("\n", "");
 
         // 訊息中是否有整數
-        var intRegex = Regex.Match(sourceMsg, RegexConst.IntRegex);
+        var amountString = StringExtension.GetAccountingAmount(sourceMsg);
 
-        if (!intRegex.Success)
+        if (amountString == null)
             return new LineReplyModel(LineReplyEnum.Message, "取值錯誤");
 
-        if (!int.TryParse(intRegex.Value, out int amount))
+        if (!int.TryParse(amountString, out int amount))
             return new LineReplyModel(LineReplyEnum.Message, "型別轉換錯誤");
 
-        var eventName = sourceMsg.Replace(amount.ToString(), "").Replace("\n", "");
+        var eventName = sourceMsg.Replace(amount.ToString(), "");
 
         if (string.IsNullOrWhiteSpace(eventName))
             eventName = "其他";

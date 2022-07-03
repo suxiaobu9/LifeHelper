@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using LifeHelper.Shared.Const;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LifeHelper.Shared.Utility
 {
@@ -40,6 +42,37 @@ namespace LifeHelper.Shared.Utility
             }
 
             return dst;
+        }
+
+        /// <summary>
+        /// 訊息是否為記帳
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static bool IsAccounting(string source)
+        {
+            return GetAccountingAmount(source) != null;
+        }
+
+        /// <summary>
+        /// 取得記帳金額
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string? GetAccountingAmount(string source)
+        {
+            var message = source.Replace(Environment.NewLine, "").Replace("\n", "");
+
+            var regexMatch = Regex.Matches(message, RegexConst.IntRegex);
+
+            foreach (Match item in regexMatch)
+            {
+                if (item.Success && (message.StartsWith(item.Value) || message.EndsWith(item.Value)))
+                    return item.Value;
+                continue;
+            }
+
+            return null;
         }
     }
 }
