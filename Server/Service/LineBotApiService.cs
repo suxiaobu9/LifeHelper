@@ -1,5 +1,6 @@
 ﻿using isRock.LineBot;
 using LifeHelper.Server.Models.LineApi;
+using LifeHelper.Server.Models.Template;
 using LifeHelper.Shared.Enum;
 
 namespace LifeHelper.Server.Service;
@@ -28,15 +29,26 @@ public class LineBotApiService
     {
         var msg = lineEvent.message.text;
 
-        if (!string.IsNullOrWhiteSpace(msg))
+        if (string.IsNullOrWhiteSpace(msg))
+            return new LineReplyModel(LineReplyEnum.Message, "完成");
+
+        if (msg == "/記帳")
         {
-            // 判斷是記帳還是備忘錄
-            EventProcess eventProcess = StringExtension.IsAccounting(msg) ? accountingService.AccountingAsync : memorandumService.RecordMemoAsync;
-            var result = await eventProcess(msg, user.Id);
-            return result;
+            var accountingData = await accountingService.GetMonthlyAccountingAsync(user.Id);
+            return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(accountingData));
         }
 
-        return new LineReplyModel(LineReplyEnum.Message, "完成");
+        if (msg == "/備忘錄")
+        {
+            var userMemoes = await memorandumService.GetUserMemorandumAsync(user.Id);
+            return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
+        }
+
+        // 判斷是記帳還是備忘錄
+        EventProcess eventProcess = StringExtension.IsAccounting(msg) ? accountingService.AccountingAsync : memorandumService.RecordMemoAsync;
+        var result = await eventProcess(msg, user.Id);
+        return result;
+
     }
 
 }

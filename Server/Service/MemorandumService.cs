@@ -56,7 +56,7 @@ public class MemorandumService
     /// 刪除備忘錄
     /// </summary>
     /// <returns></returns>
-    public async Task RemoveMemo(int memoId, int userId)
+    public async Task RemoveMemoAsync(int memoId, int userId)
     {
         var memo = await memorandumRepository.GetMemorandum(memoId, userId);
         if (memo == null)
@@ -64,6 +64,16 @@ public class MemorandumService
         memorandumRepository.Remove(memo);
 
         await unitOfWork.CompleteAsync();
+    }
+
+    /// <summary>
+    /// 取得使用者備忘錄
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Task<Memorandum[]> GetUserMemorandumAsync(int userId)
+    {
+        return memorandumRepository.GetUserMemorandum(userId);
     }
 
 }

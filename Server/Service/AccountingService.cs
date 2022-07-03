@@ -144,4 +144,23 @@ public class AccountingService
         await unitOfWork.CompleteAsync();
     }
 
+    /// <summary>
+    /// 取得本月帳務
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<AccountingFlexMessageModel> GetMonthlyAccountingAsync(int userId)
+    {
+        // 取得月帳務
+        var monthlyAccountings = await accountingRepository.GetMonthlyAccountingAsync(userId, DateTime.UtcNow);
+        var flexMessageModel = new AccountingFlexMessageModel
+        {
+            MonthlyOutlay = monthlyAccountings.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            MonthlyIncome = Math.Abs(monthlyAccountings.Where(x => x.Amount < 0).Sum(x => x.Amount)),
+            CreateDate = DateTime.UtcNow.AddHours(8),
+        };
+
+        return flexMessageModel;    
+    }
+
 }
