@@ -107,14 +107,14 @@ public class LineChatBotApiController : LineWebHookControllerBase
 
         LineReply? lineReply = model.LineReplyType switch
         {
-            LineReplyEnum.Message => ReplyMessage,
-            LineReplyEnum.Json => ReplyMessageWithJSON,
+            LineReplyEnum.Message => PushMessage,
+            LineReplyEnum.Json => PushMessagesWithJSON,
             _ => null,
         };
 
         if (lineReply == null)
             return;
 
-        lineReply(lineEvent.replyToken, model.Message);
+        lineReply(lineEvent.source.userId, model.Message);
     }
 }
