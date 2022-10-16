@@ -87,9 +87,11 @@ public class LineChatBotApiController : LineWebHookControllerBase
             }
 
         }
-        catch (Exception ex)
+        catch
         {
+            throw;
         }
+
         return Ok();
     }
 
