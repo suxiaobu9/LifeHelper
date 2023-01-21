@@ -1,15 +1,16 @@
-﻿namespace LifeHelper.Server.Extension;
+﻿
+namespace LifeHelper.Server.Extension;
 
 public static class ServiceExtension
 {
     public static void AddServices(this IServiceCollection services)
     {
-        services.AddScoped<UserService>();
-        services.AddScoped<DeleteConfirmService>();
-        services.AddScoped<LineBotApiService>();
-        services.AddScoped<AccountingService>();
-        services.AddScoped<UserProfileService>();
-        services.AddScoped<MemorandumService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IDeleteConfirmService, DeleteConfirmService>();
+        services.AddScoped<ILineBotApiService, LineBotApiService>();
+        services.AddScoped<IAccountingService, AccountingService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
+        services.AddScoped<IMemorandumService, MemorandumService>();
 
         services.AddScoped(typeof(Repository<>));
         services.AddScoped<UnitOfWork>();

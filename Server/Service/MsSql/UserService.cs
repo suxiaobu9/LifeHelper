@@ -1,8 +1,9 @@
-﻿using LifeHelper.Shared.Models.LIFF;
+﻿using LifeHelper.Server.Service.Interface;
+using LifeHelper.Shared.Models.LIFF;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly UserRepository userRepository;
     private readonly UnitOfWork unitOfWork;

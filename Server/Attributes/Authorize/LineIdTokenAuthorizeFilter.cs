@@ -8,7 +8,7 @@ public class LineIdTokenAuthorizeFilter : IAuthorizationFilter
 {
     private readonly UserProfile? userProfile;
 
-    public LineIdTokenAuthorizeFilter(UserProfileService userProfileService)
+    public LineIdTokenAuthorizeFilter(IUserProfileService userProfileService)
     {
         this.userProfile = userProfileService.UserProfile;
     }

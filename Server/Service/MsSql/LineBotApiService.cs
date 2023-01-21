@@ -1,19 +1,20 @@
 ﻿using isRock.LineBot;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
+using LifeHelper.Server.Service.Interface;
 using LifeHelper.Shared.Enum;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class LineBotApiService
+public class LineBotApiService : ILineBotApiService
 {
-    private readonly AccountingService accountingService;
-    private readonly MemorandumService memorandumService;
+    private readonly IAccountingService accountingService;
+    private readonly IMemorandumService memorandumService;
 
     private delegate Task<LineReplyModel> EventProcess(string msg, int userId);
 
-    public LineBotApiService(AccountingService accountingService,
-        MemorandumService memorandumService)
+    public LineBotApiService(IAccountingService accountingService,
+        IMemorandumService memorandumService)
     {
         this.accountingService = accountingService;
         this.memorandumService = memorandumService;

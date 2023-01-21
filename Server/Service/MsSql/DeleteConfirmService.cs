@@ -2,26 +2,27 @@
 using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
+using LifeHelper.Server.Service.Interface;
 using LifeHelper.Shared.Enum;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class DeleteConfirmService
+public class DeleteConfirmService : IDeleteConfirmService
 {
     private readonly DeleteConfirmRepository deleteConfirmRepository;
     private readonly UnitOfWork unitOfWork;
     private readonly AccountingRepository accountingRepository;
-    private readonly AccountingService accountingService;
+    private readonly IAccountingService accountingService;
     private readonly MemorandumRepository memorandumRepository;
-    private readonly MemorandumService memorandumService;
+    private readonly IMemorandumService memorandumService;
     public DeleteConfirmService(DeleteConfirmRepository deleteAccountRepository,
         UnitOfWork unitOfWork,
         AccountingRepository accountingRepository,
         MemorandumRepository memorandumRepository,
-        AccountingService accountingService,
-        MemorandumService memorandumService)
+        IAccountingService accountingService,
+        IMemorandumService memorandumService)
     {
-        this.deleteConfirmRepository = deleteAccountRepository;
+        deleteConfirmRepository = deleteAccountRepository;
         this.unitOfWork = unitOfWork;
         this.accountingRepository = accountingRepository;
         this.memorandumRepository = memorandumRepository;
@@ -40,7 +41,7 @@ public class DeleteConfirmService
     }
 
     /// <summary>
-    /// 
+    /// 刪除資料
     /// </summary>
     /// <param name="lineEvent"></param>
     /// <returns></returns>
@@ -117,13 +118,13 @@ public class DeleteConfirmService
 
         switch (featureName)
         {
-            case nameof(Models.EF.Accounting):
+            case nameof(Accounting):
                 var accounting = await accountingRepository.GetAccountingAsync(featureId, user.Id);
                 if (accounting == null)
                     return null;
                 description = accounting.Event;
                 break;
-            case nameof(Models.EF.Memorandum):
+            case nameof(Memorandum):
                 var memorandum = await memorandumRepository.GetMemorandum(featureId, user.Id);
                 if (memorandum == null)
                     return null;
@@ -166,12 +167,12 @@ public class DeleteConfirmService
     {
         switch (deleteConfirm.FeatureName)
         {
-            case nameof(Models.EF.Accounting):
+            case nameof(Accounting):
                 await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
                 var flexMessageModel = await accountingService.GetMonthlyAccountingAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
-            case nameof(Models.EF.Memorandum):
+            case nameof(Memorandum):
                 await memorandumService.RemoveMemoAsync(deleteConfirm.FeatureId, userId);
                 var userMemoes = await memorandumService.GetUserMemorandumAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));

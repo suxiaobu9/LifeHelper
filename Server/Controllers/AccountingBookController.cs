@@ -8,10 +8,10 @@ namespace LifeHelper.Server.Controllers;
 [LineIdTokenAuthorize]
 public class AccountingBookController : Controller
 {
-    private readonly AccountingService accountingService;
+    private readonly IAccountingService accountingService;
     private readonly UserProfile? userProfile;
-    public AccountingBookController(AccountingService accountingService,
-        UserProfileService userProfileService)
+    public AccountingBookController(IAccountingService accountingService,
+        IUserProfileService userProfileService)
     {
         this.accountingService = accountingService;
         this.userProfile = userProfileService.UserProfile;

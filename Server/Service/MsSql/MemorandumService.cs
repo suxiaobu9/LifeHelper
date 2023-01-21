@@ -1,10 +1,11 @@
 ﻿using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
+using LifeHelper.Server.Service.Interface;
 using LifeHelper.Shared.Enum;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class MemorandumService
+public class MemorandumService : IMemorandumService
 {
     private readonly MemorandumRepository memorandumRepository;
     private readonly UnitOfWork unitOfWork;

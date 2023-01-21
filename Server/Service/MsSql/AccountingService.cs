@@ -1,22 +1,21 @@
 ﻿using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
-using LifeHelper.Shared.Const;
+using LifeHelper.Server.Service.Interface;
 using LifeHelper.Shared.Enum;
 using LifeHelper.Shared.Models.LIFF;
-using System.Text.RegularExpressions;
 using static LifeHelper.Shared.Models.LIFF.MonthlyAccountingVm;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class AccountingService
+public class AccountingService : IAccountingService
 {
     private readonly AccountingRepository accountingRepository;
-    private readonly UserService userService;
+    private readonly IUserService userService;
     private readonly UnitOfWork unitOfWork;
     private readonly DeleteConfirmRepository deleteConfirmRepository;
 
-    public AccountingService(UserService userService,
+    public AccountingService(IUserService userService,
         UnitOfWork unitOfWork,
         AccountingRepository accountingRepository,
         DeleteConfirmRepository deleteConfirmRepository)
@@ -127,7 +126,7 @@ public class AccountingService
             EventName = accounting.Event,
             Pay = amount,
             CreateDate = DateTime.UtcNow.AddHours(8),
-            DeleteConfirm = new FlexDeleteConfirmModel(null, nameof(Models.EF.Accounting), accounting.Id)
+            DeleteConfirm = new FlexDeleteConfirmModel(null, nameof(Accounting), accounting.Id)
         };
 
         return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageWithLastestEventTemplateAsync(flexMessageModel));

@@ -1,10 +1,11 @@
-﻿using LifeHelper.Shared.Models.AppSettings;
+﻿using LifeHelper.Server.Service.Interface;
+using LifeHelper.Shared.Models.AppSettings;
 using LifeHelper.Shared.Models.LIFF;
 using Microsoft.Extensions.Options;
 
-namespace LifeHelper.Server.Service;
+namespace LifeHelper.Server.Service.MsSql;
 
-public class UserProfileService
+public class UserProfileService : IUserProfileService
 {
     public UserProfile? UserProfile { get; private set; }
     private readonly LIFFSetting LIFFSetting;
@@ -14,7 +15,7 @@ public class UserProfileService
         HttpClient http)
     {
         this.LIFFSetting = LIFFSetting.Value;
-        this.httpClient = http;
+        httpClient = http;
     }
 
     /// <summary>

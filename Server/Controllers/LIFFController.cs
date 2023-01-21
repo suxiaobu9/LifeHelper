@@ -10,12 +10,12 @@ public class LIFFController : Controller
 {
     private readonly HttpClient httpClient;
     private readonly LIFFSetting LIFFSetting;
-    private readonly UserProfileService userProfileService;
+    private readonly IUserProfileService userProfileService;
     private readonly LIFFSetting liff;
 
     public LIFFController(
         IOptions<LIFFSetting> LIFFSetting,
-        UserProfileService userProfileService,
+        IUserProfileService userProfileService,
         HttpClient httpClient,
         IOptions<LIFFSetting> liff)
     {

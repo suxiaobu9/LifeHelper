@@ -16,13 +16,13 @@ namespace LifeHelper.Server.Controllers;
 
 public class LineChatBotApiController : LineWebHookControllerBase
 {
-    private readonly UserService userService;
-    private readonly DeleteConfirmService deleteConfirmService;
-    private readonly LineBotApiService lineBotApiService;
+    private readonly IUserService userService;
+    private readonly IDeleteConfirmService deleteConfirmService;
+    private readonly ILineBotApiService lineBotApiService;
 
-    public LineChatBotApiController(UserService userService,
-        LineBotApiService lineBotApiService,
-        DeleteConfirmService deleteConfirmService,
+    public LineChatBotApiController(IUserService userService,
+        ILineBotApiService lineBotApiService,
+        IDeleteConfirmService deleteConfirmService,
         IOptions<LineChatBotSetting> lineChatBotSetting)
     {
         this.userService = userService;
