@@ -8,12 +8,15 @@ public class MemorandumService
 {
     private readonly MemorandumRepository memorandumRepository;
     private readonly UnitOfWork unitOfWork;
+    private readonly DeleteConfirmRepository deleteConfirmRepository;
 
     public MemorandumService(MemorandumRepository memorandumRepository,
-        UnitOfWork unitOfWork)
+        UnitOfWork unitOfWork,
+        DeleteConfirmRepository deleteConfirmRepository)
     {
         this.memorandumRepository = memorandumRepository;
         this.unitOfWork = unitOfWork;
+        this.deleteConfirmRepository = deleteConfirmRepository;
     }
 
     /// <summary>
@@ -59,9 +62,13 @@ public class MemorandumService
     public async Task RemoveMemoAsync(int memoId, int userId)
     {
         var memo = await memorandumRepository.GetMemorandum(memoId, userId);
-        if (memo == null)
-            return;
-        memorandumRepository.Remove(memo);
+        var deleteConfirm = await deleteConfirmRepository.GetDeleteConfirmByFeatureIdAsync(memoId, userId);
+
+        if (memo != null)
+            memorandumRepository.Remove(memo);
+
+        if (deleteConfirm != null)
+            deleteConfirmRepository.Remove(deleteConfirm);
 
         await unitOfWork.CompleteAsync();
     }

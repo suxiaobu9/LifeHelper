@@ -14,14 +14,17 @@ public class AccountingService
     private readonly AccountingRepository accountingRepository;
     private readonly UserService userService;
     private readonly UnitOfWork unitOfWork;
+    private readonly DeleteConfirmRepository deleteConfirmRepository;
 
     public AccountingService(UserService userService,
         UnitOfWork unitOfWork,
-        AccountingRepository accountingRepository)
+        AccountingRepository accountingRepository,
+        DeleteConfirmRepository deleteConfirmRepository)
     {
         this.accountingRepository = accountingRepository;
         this.userService = userService;
         this.unitOfWork = unitOfWork;
+        this.deleteConfirmRepository = deleteConfirmRepository;
     }
 
     /// <summary>
@@ -137,9 +140,13 @@ public class AccountingService
     public async Task RemoveAccountingAsync(int accountingId, int userId)
     {
         var accounting = await accountingRepository.GetAccountingAsync(accountingId, userId);
-        if (accounting == null)
-            return;
-        accountingRepository.Remove(accounting);
+        var deleteConfirm = await deleteConfirmRepository.GetDeleteConfirmByFeatureIdAsync(accountingId, userId);
+
+        if (accounting != null)
+            accountingRepository.Remove(accounting);
+
+        if (deleteConfirm != null)
+            deleteConfirmRepository.Remove(deleteConfirm);
 
         await unitOfWork.CompleteAsync();
     }
@@ -160,7 +167,7 @@ public class AccountingService
             CreateDate = DateTime.UtcNow.AddHours(8),
         };
 
-        return flexMessageModel;    
+        return flexMessageModel;
     }
 
 }
