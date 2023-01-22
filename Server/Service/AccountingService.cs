@@ -126,10 +126,10 @@ public class AccountingService : IAccountingService
         utcDate ??= DateTime.UtcNow;
 
         var monthlyAccountings = (await azureBlobStorageService.GetBlobs<Accounting>(BlobConst.MonthlyAccountingDirectory(user.Id, utcDate))).ToArray() ?? Array.Empty<Accounting>();
-        var allAccountingMonth = (await azureBlobStorageService.GetAllMonth(user.Id)).ToArray() ?? Array.Empty<DateTime?>();
+        var allAccountingMonth = azureBlobStorageService.GetAllMonth(user.Id);
 
-        var pre = allAccountingMonth.Where(x => x < utcDate).Max();
-        var next = allAccountingMonth.Where(x => x > utcDate).Min();
+        DateTime? pre = allAccountingMonth != null && allAccountingMonth.Any(x => x < utcDate) ? allAccountingMonth.Where(x => x < utcDate).Max() : null;
+        DateTime? next = allAccountingMonth != null && allAccountingMonth.Any(x => x > utcDate) ? allAccountingMonth.Where(x => x > utcDate).Min() : null;
 
         var result = new MonthlyAccountingVm
         {

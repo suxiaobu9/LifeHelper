@@ -148,19 +148,27 @@ public class DeleteConfirmService : IDeleteConfirmService
     /// <returns></returns>
     private async Task<LineReplyModel> KillDataAsync(DeleteConfirm deleteConfirm, Guid userId)
     {
+        LineReplyModel replyModel;
+
         switch (deleteConfirm.FeatureName)
         {
             case nameof(Models.EF.Accounting):
                 await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
                 var flexMessageModel = await accountingService.GetMonthlyAccountingAsync(userId);
-                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
+                replyModel = new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
+                break;
             case nameof(Models.EF.Memorandum):
                 await memorandumService.RemoveMemoAsync(deleteConfirm.FeatureId, userId);
                 var userMemoes = await memorandumService.GetUserMemorandumAsync(userId);
-                return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
+                replyModel = new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
+                break;
             default:
                 return new LineReplyModel(LineReplyEnum.Message, "錯誤的功能");
         }
+
+        await azureBlobStorageService.DeleteBlob(BlobConst.DeleteConfirmBlobName(deleteConfirm.Id, userId, deleteConfirm.FeatureName));
+
+        return replyModel;
     }
 }

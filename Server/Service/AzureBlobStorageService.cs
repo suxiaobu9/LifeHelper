@@ -68,17 +68,20 @@ public class AzureBlobStorageService
     {
         var result = new List<T>();
 
-        var blobs = blobContainerClient.GetBlobsAsync(prefix: prefix);
+        var blobs = blobContainerClient.GetBlobs(prefix: prefix).ToArray();
 
-        await foreach (var item in blobs)
+        ParallelOptions parallelOptions = new()
         {
-            using var stream = (await blobContainerClient.GetBlobClient(item.Name).DownloadStreamingAsync()).Value.Content;
+            MaxDegreeOfParallelism = 5
+        };
 
+        await Parallel.ForEachAsync(blobs, parallelOptions, async (blob, token) => 
+        {
+            using var stream = (await blobContainerClient.GetBlobClient(blob.Name).DownloadStreamingAsync(cancellationToken:token)).Value.Content;
             var deserializeObj = JsonSerializer.Deserialize<T>(await new StreamReader(stream).ReadToEndAsync());
-
             if (deserializeObj != null)
                 result.Add(deserializeObj);
-        }
+        });
 
         return result;
     }
@@ -108,20 +111,16 @@ public class AzureBlobStorageService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<DateTime?>> GetAllMonth(Guid userId)
+    public DateTime[]? GetAllMonth(Guid userId)
     {
         var userAccountingDirectory = BlobConst.UserAccountingDirectory(userId);
 
-        var allBlobss = blobContainerClient.GetBlobsByHierarchyAsync(prefix: userAccountingDirectory, delimiter: "/");
-
-        var months = new List<DateTime?>();
-
-        await foreach (var item in allBlobss)
-        {
-            var date = item.Prefix.Replace(userAccountingDirectory, "") + "01";
-
-            months.Add(DateTime.ParseExact(date, "yyyyMM/dd", null));
-        }
+        var months = blobContainerClient.GetBlobsByHierarchy(prefix: userAccountingDirectory, delimiter: "/")
+            .Select(x =>
+            {
+                var date = x.Prefix.Replace(userAccountingDirectory, "") + "01";
+                return DateTime.ParseExact(date, "yyyyMM/dd", null);
+            }).ToArray();
 
         return months;
     }
