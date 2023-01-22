@@ -12,7 +12,7 @@ public interface IDeleteConfirmService
     /// <param name="featureId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<DeleteConfirm> AddDeleteConfirmAsync(string featureName, int featureId, int userId);
+    Task<DeleteConfirm> AddDeleteConfirmAsync(string featureName, Guid featureId, Guid userId);
 
     /// <summary>
     /// 刪除資料
@@ -22,10 +22,4 @@ public interface IDeleteConfirmService
     /// <returns></returns>
     Task<LineReplyModel> DeleteConfirmationAsync(Event lineEvent, User user);
 
-    /// <summary>
-    /// 取得刪除帳務的資料
-    /// </summary>
-    /// <param name="accountId"></param>
-    /// <returns></returns>
-    Task<DeleteConfirm?> GetDeleteConfirmAsync(int accountId);
 }

@@ -14,7 +14,7 @@ public class AccountingBookController : Controller
         IUserProfileService userProfileService)
     {
         this.accountingService = accountingService;
-        this.userProfile = userProfileService.UserProfile;
+        this.userProfile = userProfileService.GetUserProfile();
     }
 
     [HttpGet("MonthlyAccounting/{year:int}/{month:int}")]
@@ -23,7 +23,7 @@ public class AccountingBookController : Controller
         if (userProfile == null)
             return null;
 
-        var utcDate = new DateTime(year, month, 1).AddHours(-8);
+        var utcDate = new DateTime(year, month, 1);
 
         return await accountingService.MonthlyAccountingAsync(userProfile, utcDate);
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LifeHelper.Server.Models.EF
+﻿namespace LifeHelper.Server.Models.EF
 {
     public partial class User
     {
@@ -12,7 +9,7 @@ namespace LifeHelper.Server.Models.EF
             Memoranda = new HashSet<Memorandum>();
         }
 
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string LineUserId { get; set; } = null!;
         public string Name { get; set; } = null!;
         public bool IsAdmin { get; set; }

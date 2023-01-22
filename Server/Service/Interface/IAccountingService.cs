@@ -12,7 +12,7 @@ public interface IAccountingService
     /// <param name="sourceMsg"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<LineReplyModel> AccountingAsync(string sourceMsg, int userId);
+    Task<LineReplyModel> AccountingAsync(string sourceMsg, Guid userId);
 
     /// <summary>
     /// 增加記帳
@@ -21,14 +21,14 @@ public interface IAccountingService
     /// <param name="userId"></param>
     /// <param name="eventName"></param>
     /// <returns></returns>
-    Task<Accounting> AddAccountingAsync(int amount, int userId, string eventName);
+    Task<Accounting> AddAccountingAsync(int amount, Guid userId, string eventName);
 
     /// <summary>
     /// 取得本月帳務
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<AccountingFlexMessageModel> GetMonthlyAccountingAsync(int userId);
+    Task<AccountingFlexMessageModel> GetMonthlyAccountingAsync(Guid userId);
 
     /// <summary>
     /// 取得月份帳務資料
@@ -44,5 +44,5 @@ public interface IAccountingService
     /// <param name="accountingId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task RemoveAccountingAsync(int accountingId, int userId);
+    Task RemoveAccountingAsync(Guid accountingId, Guid userId);
 }

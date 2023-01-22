@@ -14,6 +14,7 @@ builder.Services.AddDbContext<LifeHelperContext>(option => option.UseSqlServer(b
 
 builder.Services.Configure<LineChatBotSetting>(builder.Configuration.GetSection("LineChatBot"));
 builder.Services.Configure<LIFFSetting>(builder.Configuration.GetSection("LIFF"));
+builder.Services.Configure<AzureBlobStorage>(builder.Configuration.GetSection("AzureBlobStorage"));
 
 builder.Services.AddServices();
 

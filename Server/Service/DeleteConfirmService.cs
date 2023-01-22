@@ -2,48 +2,53 @@
 using LifeHelper.Server.Models.Flex;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
-using LifeHelper.Server.Service.Interface;
+using LifeHelper.Shared.Const;
 using LifeHelper.Shared.Enum;
 
-namespace LifeHelper.Server.Service.MsSql;
+namespace LifeHelper.Server.Service;
 
 public class DeleteConfirmService : IDeleteConfirmService
 {
-    private readonly DeleteConfirmRepository deleteConfirmRepository;
-    private readonly UnitOfWork unitOfWork;
-    private readonly AccountingRepository accountingRepository;
+    private readonly AzureBlobStorageService azureBlobStorageService;
     private readonly IAccountingService accountingService;
-    private readonly MemorandumRepository memorandumRepository;
     private readonly IMemorandumService memorandumService;
-    public DeleteConfirmService(DeleteConfirmRepository deleteAccountRepository,
-        UnitOfWork unitOfWork,
-        AccountingRepository accountingRepository,
-        MemorandumRepository memorandumRepository,
+
+    public DeleteConfirmService(AzureBlobStorageService azureBlobStorageService,
         IAccountingService accountingService,
         IMemorandumService memorandumService)
     {
-        deleteConfirmRepository = deleteAccountRepository;
-        this.unitOfWork = unitOfWork;
-        this.accountingRepository = accountingRepository;
-        this.memorandumRepository = memorandumRepository;
+        this.azureBlobStorageService = azureBlobStorageService;
         this.accountingService = accountingService;
         this.memorandumService = memorandumService;
     }
 
     /// <summary>
-    /// 取得刪除帳務的資料
+    /// 新增刪除確認
     /// </summary>
-    /// <param name="accountId"></param>
+    /// <param name="featureName"></param>
+    /// <param name="featureId"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public Task<DeleteConfirm?> GetDeleteConfirmAsync(int accountId)
+    public async Task<DeleteConfirm> AddDeleteConfirmAsync(string featureName, Guid featureId, Guid userId)
     {
-        return deleteConfirmRepository.GetDeleteConfirmAsync(accountId);
+        var deleteConfirm = new DeleteConfirm
+        {
+            Id = Guid.NewGuid(),
+            FeatureName = featureName,
+            FeatureId = featureId,
+            UserId = userId,
+            Deadline = DateTime.UtcNow.AddMinutes(5)
+        };
+
+        await azureBlobStorageService.UploadBlobAsync(BlobConst.DeleteConfirmBlobName(deleteConfirm.Id, userId, featureName), JsonSerializer.Serialize(deleteConfirm));
+        return deleteConfirm;
     }
 
     /// <summary>
     /// 刪除資料
     /// </summary>
     /// <param name="lineEvent"></param>
+    /// <param name="user"></param>
     /// <returns></returns>
     public async Task<LineReplyModel> DeleteConfirmationAsync(Event lineEvent, User user)
     {
@@ -68,7 +73,7 @@ public class DeleteConfirmService : IDeleteConfirmService
             return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.DeleteComfirmFlexTemplateAsync(description, new FlexDeleteConfirmModel(deleteConfirm.Id, deleteConfirm.FeatureName, deleteConfirm.FeatureId)));
         }
 
-        deleteConfirm = await deleteConfirmRepository.GetDeleteConfirmAsync(flexDeleteConfirm.Id.Value);
+        deleteConfirm = await azureBlobStorageService.GetBlob<DeleteConfirm>(BlobConst.DeleteConfirmBlobName(flexDeleteConfirm.Id.Value, user.Id, flexDeleteConfirm.FeatureName));
 
         if (deleteConfirm == null)
             return new LineReplyModel(LineReplyEnum.Message, "查無資料");
@@ -79,30 +84,7 @@ public class DeleteConfirmService : IDeleteConfirmService
 
         //刪除資料
         return await KillDataAsync(deleteConfirm, user.Id);
-    }
 
-    /// <summary>
-    /// 新增刪除確認
-    /// </summary>
-    /// <param name="featureName"></param>
-    /// <param name="featureId"></param>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    public async Task<DeleteConfirm> AddDeleteConfirmAsync(string featureName, int featureId, int userId)
-    {
-        var deleteConfirm = new DeleteConfirm
-        {
-            FeatureName = featureName,
-            FeatureId = featureId,
-            UserId = userId,
-            Deadline = DateTime.UtcNow.AddMinutes(5)
-        };
-
-        await deleteConfirmRepository.AddAsync(deleteConfirm);
-
-        await unitOfWork.CompleteAsync();
-
-        return deleteConfirm;
     }
 
     /// <summary>
@@ -112,20 +94,20 @@ public class DeleteConfirmService : IDeleteConfirmService
     /// <param name="featureId"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<string?> GetDescriptionAsync(string featureName, int featureId, User user)
+    private async Task<string?> GetDescriptionAsync(string featureName, Guid featureId, User user)
     {
         var description = "";
 
         switch (featureName)
         {
-            case nameof(Accounting):
-                var accounting = await accountingRepository.GetAccountingAsync(featureId, user.Id);
+            case nameof(Models.EF.Accounting):
+                var accounting = await azureBlobStorageService.GetBlob<Accounting>(BlobConst.AccountingBlobName(user.Id, featureId));
                 if (accounting == null)
                     return null;
                 description = accounting.Event;
                 break;
-            case nameof(Memorandum):
-                var memorandum = await memorandumRepository.GetMemorandum(featureId, user.Id);
+            case nameof(Models.EF.Memorandum):
+                var memorandum = await azureBlobStorageService.GetBlob<Memorandum>(BlobConst.MemorandumBlobName(user.Id, featureId));
                 if (memorandum == null)
                     return null;
                 description = memorandum.Memo;
@@ -147,7 +129,8 @@ public class DeleteConfirmService : IDeleteConfirmService
     {
         var utcNow = DateTime.UtcNow;
         deleteConfirm.Deadline = utcNow.AddMinutes(5);
-        await unitOfWork.CompleteAsync();
+
+        await azureBlobStorageService.UploadBlobAsync(BlobConst.DeleteConfirmBlobName(deleteConfirm.Id, user.Id, deleteConfirm.FeatureName), JsonSerializer.Serialize(deleteConfirm));
 
         var description = await GetDescriptionAsync(deleteConfirm.FeatureName, deleteConfirm.FeatureId, user);
 
@@ -163,16 +146,16 @@ public class DeleteConfirmService : IDeleteConfirmService
     /// <param name="deleteConfirm"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    private async Task<LineReplyModel> KillDataAsync(DeleteConfirm deleteConfirm, int userId)
+    private async Task<LineReplyModel> KillDataAsync(DeleteConfirm deleteConfirm, Guid userId)
     {
         switch (deleteConfirm.FeatureName)
         {
-            case nameof(Accounting):
+            case nameof(Models.EF.Accounting):
                 await accountingService.RemoveAccountingAsync(deleteConfirm.FeatureId, userId);
                 // 取得月帳務
                 var flexMessageModel = await accountingService.GetMonthlyAccountingAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.AccountingFlexMessageTemplateAsync(flexMessageModel));
-            case nameof(Memorandum):
+            case nameof(Models.EF.Memorandum):
                 await memorandumService.RemoveMemoAsync(deleteConfirm.FeatureId, userId);
                 var userMemoes = await memorandumService.GetUserMemorandumAsync(userId);
                 return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));

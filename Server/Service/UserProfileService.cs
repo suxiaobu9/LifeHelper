@@ -1,13 +1,12 @@
-﻿using LifeHelper.Server.Service.Interface;
-using LifeHelper.Shared.Models.AppSettings;
+﻿using LifeHelper.Shared.Models.AppSettings;
 using LifeHelper.Shared.Models.LIFF;
 using Microsoft.Extensions.Options;
 
-namespace LifeHelper.Server.Service.MsSql;
+namespace LifeHelper.Server.Service;
 
 public class UserProfileService : IUserProfileService
 {
-    public UserProfile? UserProfile { get; private set; }
+    private UserProfile? UserProfile { get; set; }
     private readonly LIFFSetting LIFFSetting;
     private readonly HttpClient httpClient;
 
@@ -15,7 +14,7 @@ public class UserProfileService : IUserProfileService
         HttpClient http)
     {
         this.LIFFSetting = LIFFSetting.Value;
-        httpClient = http;
+        this.httpClient = http;
     }
 
     /// <summary>
@@ -63,7 +62,12 @@ public class UserProfileService : IUserProfileService
 
         var token = authorization[0]["bearer".Length..];
 
-
         UserProfile = await GetUserProfileAsync(token);
     }
+
+    public UserProfile? GetUserProfile()
+    {
+        return UserProfile;
+    }
+
 }

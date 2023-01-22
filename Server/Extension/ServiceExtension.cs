@@ -1,4 +1,6 @@
 ﻿
+using LifeHelper.Server.Service;
+
 namespace LifeHelper.Server.Extension;
 
 public static class ServiceExtension
@@ -11,13 +13,7 @@ public static class ServiceExtension
         services.AddScoped<IAccountingService, AccountingService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IMemorandumService, MemorandumService>();
-
-        services.AddScoped(typeof(Repository<>));
-        services.AddScoped<UnitOfWork>();
-        services.AddScoped<UserRepository>();
-        services.AddScoped<DeleteConfirmRepository>();
-        services.AddScoped<AccountingRepository>();
-        services.AddScoped<MemorandumRepository>();
+        services.AddScoped<AzureBlobStorageService>();
 
         services.AddHttpClient();
 

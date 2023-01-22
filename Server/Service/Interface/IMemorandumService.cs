@@ -11,14 +11,14 @@ public interface IMemorandumService
     /// <param name="msg"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Memorandum> AddMemoAsync(string msg, int userId);
+    Task<Memorandum> AddMemoAsync(string msg, Guid userId);
 
     /// <summary>
     /// 取得使用者備忘錄
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Memorandum[]> GetUserMemorandumAsync(int userId);
+    Task<Memorandum[]> GetUserMemorandumAsync(Guid userId);
 
     /// <summary>
     /// 備忘錄
@@ -26,7 +26,7 @@ public interface IMemorandumService
     /// <param name="msg"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<LineReplyModel> RecordMemoAsync(string msg, int userId);
+    Task<LineReplyModel> RecordMemoAsync(string msg, Guid userId);
 
     /// <summary>
     /// 刪除備忘錄
@@ -34,5 +34,5 @@ public interface IMemorandumService
     /// <param name="memoId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task RemoveMemoAsync(int memoId, int userId);
+    Task RemoveMemoAsync(Guid memoId, Guid userId);
 }

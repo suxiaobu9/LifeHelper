@@ -1,6 +1,6 @@
 ﻿namespace LifeHelper.Server.Models.Flex;
 
-public record class FlexDeleteConfirmModel(int? Id, string FeatureName, int FeatureId)
+public record class FlexDeleteConfirmModel(Guid? Id, string FeatureName, Guid FeatureId)
 {
     public string FeatureDisplay
     {

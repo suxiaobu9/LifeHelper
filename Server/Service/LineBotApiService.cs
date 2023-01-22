@@ -1,31 +1,26 @@
 ﻿using isRock.LineBot;
 using LifeHelper.Server.Models.LineApi;
 using LifeHelper.Server.Models.Template;
-using LifeHelper.Server.Service.Interface;
 using LifeHelper.Shared.Enum;
 
-namespace LifeHelper.Server.Service.MsSql;
+namespace LifeHelper.Server.Service;
 
 public class LineBotApiService : ILineBotApiService
 {
+    private readonly AzureBlobStorageService azureBlobStorageService;
     private readonly IAccountingService accountingService;
     private readonly IMemorandumService memorandumService;
+    private delegate Task<LineReplyModel> EventProcess(string msg, Guid userId);
 
-    private delegate Task<LineReplyModel> EventProcess(string msg, int userId);
-
-    public LineBotApiService(IAccountingService accountingService,
+    public LineBotApiService(AzureBlobStorageService azureBlobStorageService,
+        IAccountingService accountingService,
         IMemorandumService memorandumService)
     {
+        this.azureBlobStorageService = azureBlobStorageService;
         this.accountingService = accountingService;
         this.memorandumService = memorandumService;
     }
 
-    /// <summary>
-    /// 處理訊息
-    /// </summary>
-    /// <param name="lineEvent"></param>
-    /// <param name="user"></param>
-    /// <returns></returns>
     public async Task<LineReplyModel> AnalyzeMessagesAsync(Event lineEvent, User user)
     {
         var msg = lineEvent.message.text;

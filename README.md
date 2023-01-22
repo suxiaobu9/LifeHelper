@@ -1,5 +1,9 @@
 # LifeHelper
 
+## dotnet ef
+
+dotnet tool install --global dotnet-ef
+
 ## User secret
 
 ```powershell
@@ -16,6 +20,8 @@ dotnet user-secrets set "LineChatBot:ChannelSecret" ""
 dotnet user-secrets set "LIFF:LiffId" ""
 dotnet user-secrets set "LIFF:ChannelId" ""
 dotnet user-secrets set "LIFF:ChannelSecret" ""
+dotnet user-secrets set "AzureBlobStorage:AccountName" ""
+dotnet user-secrets set "AzureBlobStorage:AccountKey" ""
 
 ```
 

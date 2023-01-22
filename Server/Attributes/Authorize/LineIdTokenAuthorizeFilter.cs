@@ -10,7 +10,7 @@ public class LineIdTokenAuthorizeFilter : IAuthorizationFilter
 
     public LineIdTokenAuthorizeFilter(IUserProfileService userProfileService)
     {
-        this.userProfile = userProfileService.UserProfile;
+        this.userProfile = userProfileService.GetUserProfile();
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)

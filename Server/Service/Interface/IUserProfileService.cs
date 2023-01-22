@@ -4,12 +4,6 @@ namespace LifeHelper.Server.Service.Interface;
 
 public interface IUserProfileService
 {
-
-    /// <summary>
-    /// 
-    /// </summary>
-    UserProfile? UserProfile { get; }
-
     /// <summary>
     /// 取得使用者資料
     /// </summary>
@@ -23,4 +17,10 @@ public interface IUserProfileService
     /// <param name="context"></param>
     /// <returns></returns>
     Task SetUserProfileAsync(HttpContext context);
+
+    /// <summary>
+    /// 取得使用者資料
+    /// </summary>
+    /// <returns></returns>
+    UserProfile? GetUserProfile();
 }

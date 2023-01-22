@@ -46,7 +46,7 @@ public class FlexTemplate
 
         var flexModel = JsonSerializer.Deserialize<BubbleContainer>(template);
 
-        flexModel.Body.Contents[7].Contents = flexModel.Body.Contents[7].Contents[1..];
+        flexModel!.Body!.Contents![7].Contents = flexModel!.Body!.Contents![7].Contents![1..];
 
         var flexContent = flexModel.Body.Contents[..4];
 

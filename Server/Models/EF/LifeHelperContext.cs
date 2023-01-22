@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace LifeHelper.Server.Models.EF
 {
@@ -29,7 +26,7 @@ namespace LifeHelper.Server.Models.EF
             {
                 entity.ToTable("Accounting");
 
-                entity.HasIndex(e => new { e.AccountDate, e.UserId }, "IX_Accounting");
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.AccountDate).HasColumnType("datetime");
 
@@ -48,6 +45,8 @@ namespace LifeHelper.Server.Models.EF
             {
                 entity.ToTable("DeleteConfirm");
 
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
                 entity.Property(e => e.Deadline).HasColumnType("datetime");
 
                 entity.Property(e => e.FeatureName).HasMaxLength(50);
@@ -63,6 +62,8 @@ namespace LifeHelper.Server.Models.EF
             {
                 entity.ToTable("Memorandum");
 
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Memoranda)
                     .HasForeignKey(d => d.UserId)
@@ -73,6 +74,8 @@ namespace LifeHelper.Server.Models.EF
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(10);
             });
