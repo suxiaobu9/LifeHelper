@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace LifeHelper.Server.Models.EF
 {
@@ -33,12 +36,6 @@ namespace LifeHelper.Server.Models.EF
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Event).HasMaxLength(50);
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Accountings)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Accounting_User");
             });
 
             modelBuilder.Entity<DeleteConfirm>(entity =>
@@ -50,12 +47,6 @@ namespace LifeHelper.Server.Models.EF
                 entity.Property(e => e.Deadline).HasColumnType("datetime");
 
                 entity.Property(e => e.FeatureName).HasMaxLength(50);
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.DeleteConfirms)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_DeleteConfirm_User");
             });
 
             modelBuilder.Entity<Memorandum>(entity =>
@@ -63,12 +54,6 @@ namespace LifeHelper.Server.Models.EF
                 entity.ToTable("Memorandum");
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Memoranda)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Memorandum_User");
             });
 
             modelBuilder.Entity<User>(entity =>

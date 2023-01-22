@@ -126,6 +126,11 @@ public class AzureBlobStorageService
         return months;
     }
 
+    /// <summary>
+    /// 刪除 Blob
+    /// </summary>
+    /// <param name="blobName"></param>
+    /// <returns></returns>
     public async Task DeleteBlob(string blobName)
     {
         var blob = blobContainerClient.GetBlobClient(blobName);
