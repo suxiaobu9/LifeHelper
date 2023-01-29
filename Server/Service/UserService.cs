@@ -53,8 +53,20 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="userProfile"></param>
     /// <returns></returns>
-    public Task<User?> UpsertUserAsync(UserProfile userProfile)
+    public async Task<User?> UpsertUserAsync(UserProfile userProfile)
     {
-        return azureBlobStorageService.GetBlob<User>(BlobConst.UserBlobName(userProfile.UserLineId));
+        var user = await azureBlobStorageService.GetBlob<User>(BlobConst.UserBlobName(userProfile.UserLineId));
+
+        if (user == null)
+            return user;
+
+        if (user.Name == userProfile.Name)
+            return user;
+
+        user.Name = userProfile.Name;
+
+        await azureBlobStorageService.UploadBlobAsync(BlobConst.UserBlobName(userProfile.UserLineId), JsonSerializer.Serialize(user));
+
+        return user;
     }
 }

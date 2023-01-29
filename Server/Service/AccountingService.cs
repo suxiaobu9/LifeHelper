@@ -157,7 +157,7 @@ public class AccountingService : IAccountingService
     /// <returns></returns>
     public async Task RemoveAccountingAsync(Guid accountingId, Guid userId)
     {
-        await azureBlobStorageService.RemoveAccountingAsync(BlobConst.AccountingBlobName(userId, accountingId));
+        await azureBlobStorageService.DeleteBlob(BlobConst.AccountingBlobName(userId, accountingId));
     }
 
 }

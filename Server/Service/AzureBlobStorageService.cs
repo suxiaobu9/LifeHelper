@@ -52,13 +52,6 @@ public class AzureBlobStorageService
         await blob.UploadAsync(memoryStream, overwrite: true);
     }
 
-    public async Task RemoveAccountingAsync(string blobName)
-    {
-        var blob = blobContainerClient.GetBlobClient(blobName);
-
-        await blob.DeleteIfExistsAsync();
-    }
-
     /// <summary>
     /// 取得 Blob 資料夾底下的資料
     /// </summary>
@@ -75,9 +68,9 @@ public class AzureBlobStorageService
             MaxDegreeOfParallelism = 5
         };
 
-        await Parallel.ForEachAsync(blobs, parallelOptions, async (blob, token) => 
+        await Parallel.ForEachAsync(blobs, parallelOptions, async (blob, token) =>
         {
-            using var stream = (await blobContainerClient.GetBlobClient(blob.Name).DownloadStreamingAsync(cancellationToken:token)).Value.Content;
+            using var stream = (await blobContainerClient.GetBlobClient(blob.Name).DownloadStreamingAsync(cancellationToken: token)).Value.Content;
             var deserializeObj = JsonSerializer.Deserialize<T>(await new StreamReader(stream).ReadToEndAsync());
             if (deserializeObj != null)
                 result.Add(deserializeObj);
