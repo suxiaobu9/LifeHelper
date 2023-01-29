@@ -38,14 +38,9 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="userLineIds"></param>
     /// <returns></returns>
-    public async Task<User[]> GetUsersAsync(string[] userLineIds)
+    public async Task<User?> GetUserAsync(string userLineId)
     {
-        var allUsers = await azureBlobStorageService.GetBlobs<User>(BlobConst.UserBlobDirectory);
-
-        var result = allUsers.Where(x => userLineIds.Any(y => x.LineUserId == y)).ToArray();
-
-        return result;
-
+        return await azureBlobStorageService.GetBlob<User>(BlobConst.UserBlobName(userLineId));
     }
 
     /// <summary>
@@ -65,7 +60,7 @@ public class UserService : IUserService
 
         user.Name = userProfile.Name;
 
-        await azureBlobStorageService.UploadBlobAsync(BlobConst.UserBlobName(userProfile.UserLineId), JsonSerializer.Serialize(user));
+        await azureBlobStorageService.UpdateBlobAsync(BlobConst.UserBlobName(userProfile.UserLineId), JsonSerializer.Serialize(user));
 
         return user;
     }

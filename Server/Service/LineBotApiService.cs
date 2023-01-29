@@ -36,7 +36,7 @@ public class LineBotApiService : ILineBotApiService
 
         if (msg == "/備忘錄")
         {
-            var userMemoes = await memorandumService.GetUserMemorandumAsync(user.Id);
+            var userMemoes = (await memorandumService.GetUserMemorandumAsync(user.Id)).OrderBy(x => x.Id).ToArray();
             return new LineReplyModel(LineReplyEnum.Json, await FlexTemplate.MemorandumFlexMessageTemplateAsync(userMemoes));
         }
 

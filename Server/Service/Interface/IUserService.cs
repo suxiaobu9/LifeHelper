@@ -17,7 +17,7 @@ public interface IUserService
     /// </summary>
     /// <param name="userLineIds"></param>
     /// <returns></returns>
-    Task<User[]> GetUsersAsync(string[] userLineIds);
+    Task<User?> GetUserAsync(string userLineIds);
 
     /// <summary>
     /// Upsert 目前使用者 並回傳

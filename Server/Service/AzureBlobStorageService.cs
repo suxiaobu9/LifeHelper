@@ -43,13 +43,24 @@ public class AzureBlobStorageService
     /// <param name="blobName"></param>
     /// <param name="json"></param>
     /// <returns></returns>
-    public async Task UploadBlobAsync(string blobName, string json)
+    public async Task UploadBlobAsync(string blobName, string json, bool overwrite = false)
     {
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
         var blob = blobContainerClient.GetBlobClient(blobName);
 
-        await blob.UploadAsync(memoryStream, overwrite: true);
+        await blob.UploadAsync(memoryStream, overwrite: overwrite);
+    }
+
+    /// <summary>
+    /// 更新 Blob
+    /// </summary>
+    /// <param name="blobName"></param>
+    /// <param name="json"></param>
+    /// <returns></returns>
+    public async Task UpdateBlobAsync(string blobName, string json)
+    {
+        await UploadBlobAsync(blobName, json, true);
     }
 
     /// <summary>

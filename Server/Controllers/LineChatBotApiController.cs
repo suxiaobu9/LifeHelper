@@ -62,12 +62,9 @@ public class LineChatBotApiController : LineWebHookControllerBase
 
             var allUserLineIds = lineEvents.Select(x => x.source.userId)
                                                 .Distinct().ToArray();
-
-            var allUserInfos = await userService.GetUsersAsync(allUserLineIds);
-
             foreach (var lineEvent in lineEvents)
             {
-                var user = allUserInfos.FirstOrDefault(x => x.LineUserId == lineEvent.source.userId);
+                var user = await userService.GetUserAsync(lineEvent.source.userId);
 
                 if (user == null)
                     user = await userService.AddUserAsync(lineEvent.source.userId);
