@@ -70,24 +70,24 @@ public class AzureBlobStorageService
     /// <returns></returns>
     public async Task<IEnumerable<T>> GetBlobs<T>(string prefix)
     {
-        var result = new List<T>();
+        var blobs = blobContainerClient.GetBlobs(prefix: prefix).OrderBy(x=>x.Properties.CreatedOn).ToArray();
 
-        var blobs = blobContainerClient.GetBlobs(prefix: prefix).ToArray();
+        var result = new T[blobs.Length];
 
         ParallelOptions parallelOptions = new()
         {
             MaxDegreeOfParallelism = 5
         };
 
-        await Parallel.ForEachAsync(blobs, parallelOptions, async (blob, token) =>
+        await Parallel.ForEachAsync(Enumerable.Range(0, blobs.Length), parallelOptions, async (index, token) =>
         {
-            using var stream = (await blobContainerClient.GetBlobClient(blob.Name).DownloadStreamingAsync(cancellationToken: token)).Value.Content;
+            using var stream = (await blobContainerClient.GetBlobClient(blobs[index].Name).DownloadStreamingAsync(cancellationToken: token)).Value.Content;
             var deserializeObj = JsonSerializer.Deserialize<T>(await new StreamReader(stream).ReadToEndAsync());
             if (deserializeObj != null)
-                result.Add(deserializeObj);
+                result[index] = deserializeObj;
         });
 
-        return result;
+        return result.Where(x=>x != null);
     }
 
     /// <summary>
