@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WakeItUp": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
