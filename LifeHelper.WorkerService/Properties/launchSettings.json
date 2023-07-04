@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "LifeHelper.WorkerService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "DockerfileRunArguments": "--network seq-log_seq_log_network"
+    }
+  }
+}
