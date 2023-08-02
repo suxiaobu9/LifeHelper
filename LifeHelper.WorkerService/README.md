@@ -28,6 +28,7 @@ services:
       - SeqLogServerAddress=http://172.30.0.2:5341/
       - Duc__UserName=
       - Duc__Password=
+      - Duc__ZoneId=
       - Duc__HostNames=
       - Duc__DelayMinutes=5
       - WakeUp__HostAddress=
@@ -48,10 +49,10 @@ networks:
 ```ps1
 docker build -t arisuokay/lifehelper-worker-service .
 # 需要變更版本
-docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.0
+docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.1
 
 docker push arisuokay/lifehelper-worker-service:latest
 # 需要變更版本
-docker push arisuokay/lifehelper-worker-service:v1.0
+docker push arisuokay/lifehelper-worker-service:v1.1
 
 ```

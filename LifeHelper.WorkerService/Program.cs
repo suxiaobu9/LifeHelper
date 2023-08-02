@@ -15,18 +15,19 @@ IHost host = Host.CreateDefaultBuilder(args)
                     .CreateLogger());
         });
 
-        services.AddHttpClient(WorkerServicePatams.NoIpHttpClientName, option =>
+        services.AddHttpClient(WorkerServiceParams.DucHttpClientName, option =>
         {
             var username = hostContext.Configuration.GetSection("duc:username").Value;
             var password = hostContext.Configuration.GetSection("duc:password").Value;
-            var authHeader = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
-            option.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
+
+            option.DefaultRequestHeaders.Add("X-Auth-Email", username);
+            option.DefaultRequestHeaders.Add("X-Auth-Key", password);
         });
         services.AddHttpClient();
 
         services.AddHostedService<WakeLineBotUpWorker>();
         services.AddHostedService<DucWorker>();
-    
+
     })
     .Build();
 

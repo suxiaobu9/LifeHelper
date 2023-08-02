@@ -1,11 +1,15 @@
-﻿namespace LifeHelper.WorkerService.Workers;
+﻿using LifeHelper.WorkerService.Model;
+using System.Net.Http.Json;
+
+namespace LifeHelper.WorkerService.Workers;
 
 public class DucWorker : BackgroundService
 {
     private readonly ILogger<DucWorker> logger;
     private readonly HttpClient httpClient;
-    private readonly HttpClient noIpHttpClient;
+    private readonly HttpClient ducHttpClient;
     private readonly int delayMin;
+    private readonly string zoneId;
     private readonly string hostName;
     private string oldIp = "";
 
@@ -15,10 +19,12 @@ public class DucWorker : BackgroundService
         HttpClient httpClient)
     {
         this.logger = logger;
-        this.noIpHttpClient = httpClientFactory.CreateClient(WorkerServicePatams.NoIpHttpClientName);
+        this.ducHttpClient = httpClientFactory.CreateClient(WorkerServiceParams.DucHttpClientName);
         this.httpClient = httpClient;
 
         delayMin = configuration.GetSection("Duc:DelayMinutes").Get<int>();
+
+        zoneId = configuration.GetSection("Duc:ZoneId").Value;
 
         hostName = configuration.GetSection("Duc:HostNames").Value;
     }
@@ -42,7 +48,19 @@ public class DucWorker : BackgroundService
         try
         {
             // 取得目前的公開IP位址
-            string currentIp = await GetPublicIpAddress();
+            var currentIpTask = GetPublicIpAddress();
+
+            var getDnsRecordsApi = $"https://api.cloudflare.com/client/v4/zones/{zoneId}/dns_records";
+
+            var zonesResult = await ducHttpClient.GetFromJsonAsync<Zones>(getDnsRecordsApi);
+
+            if (zonesResult?.Result == null)
+            {
+                logger.LogWarning("Dns records get null.");
+                return;
+            }
+
+            var currentIp = await currentIpTask;
 
             if (!string.IsNullOrWhiteSpace(currentIp) && currentIp == oldIp)
             {
@@ -50,22 +68,53 @@ public class DucWorker : BackgroundService
                 return;
             }
 
-            // 構建更新No-IP域名IP的URL
-            string updateUrl = $"https://dynupdate.no-ip.com/nic/update?hostname={hostName}&myip={currentIp}";
+            var hostNames = hostName.Split(",");
 
-            // 發送HTTP GET請求以更新IP
-            using HttpResponseMessage response = await noIpHttpClient.GetAsync(updateUrl);
-
-            if (response.IsSuccessStatusCode)
+            if (hostNames == null || hostNames.Length == 0)
             {
-                oldIp = currentIp;
-                logger.LogInformation("IP address updated successfully.{IP}", currentIp);
+                logger.LogWarning("Host name get null.");
+                return;
             }
-            else
+
+            List<Task<HttpResponseMessage>> tasks = new();
+
+            foreach (var dnsRecord in zonesResult.Result)
             {
+                if (!hostNames.Any(x => x == dnsRecord.Name))
+                    continue;
+
+                var updateDnsApi = $"https://api.cloudflare.com/client/v4/zones/{dnsRecord.ZoneId}/dns_records/{dnsRecord.Id}";
+
+                var model = new UpdateDnsRecordModel
+                {
+                    Content = currentIp,
+                    Name = dnsRecord.Name,
+                    Proxied = dnsRecord.Proxied,
+                    Ttl = dnsRecord.Ttl,
+                    Type = dnsRecord.Type
+                };
+
+                tasks.Add(ducHttpClient.PutAsJsonAsync(updateDnsApi, model));
+            }
+
+            var responses = await Task.WhenAll(tasks);
+
+            foreach (HttpResponseMessage response in responses)
+            {
+                if (response.IsSuccessStatusCode)
+                    continue;
+
+                string url = response.RequestMessage!.RequestUri!.ToString();
+
                 var content = await response.Content.ReadAsStringAsync();
-                logger.LogWarning("Failed to update IP address. {content}", content);
+
+                logger.LogWarning("Update dns fail.{url} {content}", url, content);
             }
+
+            oldIp = currentIp;
+
+            logger.LogInformation("IP address changed to {ip}.", currentIp);
+
         }
         catch (Exception ex)
         {
