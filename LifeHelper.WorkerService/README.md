@@ -25,7 +25,8 @@ services:
     container_name: lifehelper-worker
     restart: unless-stopped
     environment:
-      - SeqLogServerAddress=http://172.30.0.2:5341/
+      - Seq__ServerAddress=http://172.30.0.2:5341/
+      - Seq__ApiKey=
       - Duc__UserName=
       - Duc__Password=
       - Duc__ZoneId=
@@ -49,10 +50,10 @@ networks:
 ```ps1
 docker build -t arisuokay/lifehelper-worker-service .
 # 需要變更版本
-docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.1
+docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.2
 
 docker push arisuokay/lifehelper-worker-service:latest
 # 需要變更版本
-docker push arisuokay/lifehelper-worker-service:v1.1
+docker push arisuokay/lifehelper-worker-service:v1.2
 
 ```

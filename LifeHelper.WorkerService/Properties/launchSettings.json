@@ -8,8 +8,7 @@
       "dotnetRunMessages": true
     },
     "Docker": {
-      "commandName": "Docker",
-      "DockerfileRunArguments": "--network seq-log_seq_log_network"
+      "commandName": "Docker"
     }
   }
 }

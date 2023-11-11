@@ -8,9 +8,10 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddLogging(configure =>
         {
-            var seqLogAdd = hostContext.Configuration.GetSection("SeqLogServerAddress").Value;
+            var seqLogAdd = hostContext.Configuration.GetSection("Seq:ServerAddress").Value;
+            var seqLogApiKey = hostContext.Configuration.GetSection("Seq:ApiKey").Value;
             configure.AddSerilog(new LoggerConfiguration()
-                    .WriteTo.Seq(seqLogAdd)
+                    .WriteTo.Seq(seqLogAdd, apiKey: seqLogApiKey)
                     .WriteTo.Console()
                     .CreateLogger());
         });
