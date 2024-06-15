@@ -28,6 +28,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddHostedService<WakeLineBotUpWorker>();
         services.AddHostedService<DucWorker>();
+        services.AddHostedService<AgiWorker>();
 
     })
     .Build();

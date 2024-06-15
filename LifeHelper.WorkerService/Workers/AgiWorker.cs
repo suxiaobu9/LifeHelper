@@ -18,8 +18,8 @@ public class AgiWorker : BackgroundService
     {
         this.httpClient = httpClient;
         this.logger = logger;
-        hostAddress = configuration.GetSection("WakeUp:HostAddress").Value;
-        delayMin = configuration.GetSection("WakeUp:DelayMinutes").Get<int>();
+        hostAddress = configuration.GetSection("Agi:HostAddress").Value;
+        delayMin = configuration.GetSection("Agi:DelayMinutes").Get<int>();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
