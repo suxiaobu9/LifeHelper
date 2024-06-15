@@ -34,6 +34,8 @@ services:
       - Duc__DelayMinutes=5
       - WakeUp__HostAddress=
       - WakeUp__DelayMinutes=10
+      - Agi__HostAddress=
+      - Agi__DelayMinutes=10
     networks:
       seq_log_network:
         ipv4_address: 172.30.0.3
@@ -50,10 +52,10 @@ networks:
 ```ps1
 docker build -t arisuokay/lifehelper-worker-service .
 # 需要變更版本
-docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.2
+docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.3
 
 docker push arisuokay/lifehelper-worker-service:latest
 # 需要變更版本
-docker push arisuokay/lifehelper-worker-service:v1.2
+docker push arisuokay/lifehelper-worker-service:v1.3
 
 ```
