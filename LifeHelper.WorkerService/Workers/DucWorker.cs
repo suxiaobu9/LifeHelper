@@ -31,6 +31,11 @@ public class DucWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (string.IsNullOrWhiteSpace(hostName))
+        {
+            return;
+        }
+
         logger.LogInformation("Duc start.");
 
         while (!stoppingToken.IsCancellationRequested)

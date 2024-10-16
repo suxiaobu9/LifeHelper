@@ -21,6 +21,11 @@ public class WakeLineBotUpWorker : BackgroundService
     {
         logger.LogInformation("Wake up host start.");
 
+        if(string.IsNullOrWhiteSpace(hostAddress))
+        {
+            return;
+        }
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try

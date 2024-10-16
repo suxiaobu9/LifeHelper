@@ -24,6 +24,11 @@ public class AgiWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (string.IsNullOrWhiteSpace(hostAddress))
+        {
+            return;
+        }
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
