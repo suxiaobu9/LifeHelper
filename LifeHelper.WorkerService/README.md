@@ -52,10 +52,10 @@ networks:
 ```ps1
 docker build -t arisuokay/lifehelper-worker-service .
 # 需要變更版本
-docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.6
+docker tag arisuokay/lifehelper-worker-service:latest arisuokay/lifehelper-worker-service:v1.7
 
 docker push arisuokay/lifehelper-worker-service:latest
 # 需要變更版本
-docker push arisuokay/lifehelper-worker-service:v1.6
+docker push arisuokay/lifehelper-worker-service:v1.7
 
 ```

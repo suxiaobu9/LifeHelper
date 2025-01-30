@@ -88,7 +88,7 @@ public class DucWorker : BackgroundService
                 if (!hostNames.Any(x => x == dnsRecord.Name))
                     continue;
 
-                var updateDnsApi = $"https://api.cloudflare.com/client/v4/zones/{dnsRecord.ZoneId}/dns_records/{dnsRecord.Id}";
+                var updateDnsApi = $"https://api.cloudflare.com/client/v4/zones/{zoneId}/dns_records/{dnsRecord.Id}";
 
                 var model = new UpdateDnsRecordModel
                 {
